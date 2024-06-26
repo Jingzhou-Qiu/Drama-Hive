@@ -1,15 +1,17 @@
+import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
 
 const styles = StyleSheet.create({
     container: {
+        marginLeft: 10,
         justifyContent: 'left',
         flexDirection: "column",
         width: 380,
         height: 250,
-        borderWidth: 4,
-        borderColor: '#20232a',
+        borderBottomWidth: 2,
+        borderBottomColor: 'grey',
         alignItems: 'left',
     },
     container2: {
@@ -83,8 +85,10 @@ const styles = StyleSheet.create({
 })
 
 
+
 export default function MoviePre2({ movie }) {
     const [imageurl, setImageUrl] = useState(null);
+    const navigation = useNavigation()
     const poster_url = 'https://image.tmdb.org/t/p/original' + movie.poster_path;
     const image_url = `https://api.themoviedb.org/3/movie/${movie.id}/images`;
 
@@ -117,10 +121,13 @@ export default function MoviePre2({ movie }) {
             return overview
         }
     }
+    handleNavigtion = () =>{
+        navigation.navigate("Explore", {movie: movie})
+    }
 
 
     return (
-        <View style={styles.container}>
+        <TouchableOpacity style={styles.container} onPress = {handleNavigtion}>
             <View style={styles.container2}>
                 <Image source={{ uri: poster_url }} style={styles.poster} />
                 <Image source={{ uri: pic_url }} style={styles.picture} />
@@ -131,7 +138,7 @@ export default function MoviePre2({ movie }) {
             </View>
             <Text style = {styles.text_rate}>rating: {movie.vote_average}</Text>
             <Text style = {styles.text_overview}>Overview: {formatOverview(movie.overview)}</Text>
-        </View>
+        </TouchableOpacity>
         
     )
 

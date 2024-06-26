@@ -1,46 +1,40 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import MovieGenre from './ShowListPage/MovieGenre';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import HomeScreen from './HomeScreen/HomeScreen';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import GenreProvider from './MyContext/GenreContext';
+import SingleMoviePage from './showSingleMoviePage/SingleMoviePage';
 
 
 
-
+export const options = {
+  method: 'GET',
+  headers: {
+    accept: 'application/json',
+    Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2MDRkOGFjOWM0YzA3OWEzMjNlZjAwMzY3MTQ5MmQzZiIsInN1YiI6IjY2NzE4NWRjMWJmODZmNjA1ZjZhYjEzOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cqnD9xHIfL_SpjSBm1PJp_zF4PEDGH5g-YrYmB9gXOk'
+  }
+};
 
 export default function App() {
   const [genreMap, setGenre] = useState(null);
 
-  const options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2MDRkOGFjOWM0YzA3OWEzMjNlZjAwMzY3MTQ5MmQzZiIsInN1YiI6IjY2NzE4NWRjMWJmODZmNjA1ZjZhYjEzOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cqnD9xHIfL_SpjSBm1PJp_zF4PEDGH5g-YrYmB9gXOk'
-    }
-  };
-
-
-  async function fetchGenre() {
-    map = new Map()
-    let rs = await fetch('https://api.themoviedb.org/3/genre/movie/list?language=en', options)
-      .then(response => response.json())
-      .catch(err => console.error(err));
-    rs.genres.map((element) => {
-      map.set(element.id, element.name)
-    })
-    setGenre(map)
-    console.log(genreMap)
-    return genreMap
-  }
-
-  useEffect(()=>{
-    fetchGenre()
-  })
+  const Stack = createNativeStackNavigator();
 
 
   return (
-    <View style={styles.container}>
-      <MovieGenre genre="18"/>
-    </View>
+    <GenreProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="HomeScreen">
+          <Stack.Screen name="HomeScreen" component={HomeScreen} />
+          <Stack.Screen name="MovieGenre" component={MovieGenre} />
+          <Stack.Screen name = "Explore" component={SingleMoviePage}/>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GenreProvider>
+
   );
 }
 

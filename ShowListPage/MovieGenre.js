@@ -2,25 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, FlatList } from 'react-native';
 import Movie from './Movie';
 import MoviePre2 from './MoviePre2';
+import {options} from '../App'
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50,
     }
 })
 
 
+export default function MovieGenre( route, navigation) {
+    // console.log(route.route.params.genre)
 
-export default function MovieGenre({ genre }) {
+    const [genre, setGenre] = useState(route.route.params.genre)
     const [data, setData] = useState(null);
-    const options = {
-        method: 'GET',
-        headers: {
-            accept: 'application/json',
-            Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2MDRkOGFjOWM0YzA3OWEzMjNlZjAwMzY3MTQ5MmQzZiIsInN1YiI6IjY2NzE4NWRjMWJmODZmNjA1ZjZhYjEzOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cqnD9xHIfL_SpjSBm1PJp_zF4PEDGH5g-YrYmB9gXOk'
-        }
-    };
+
 
     async function getMovie(genre_ids) {
         try {
