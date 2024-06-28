@@ -1,6 +1,6 @@
 import { View, FlatList } from 'react-native';
 import { useState, useEffect } from 'react';
-import { options } from '../App';
+import { options } from '../MyContext/ConstantContext';
 import Movie from '../ShowListPage/Movie';
 import { styles } from './styles';
 

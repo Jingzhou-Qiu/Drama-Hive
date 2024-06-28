@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, FlatList } from 'react-native';
 import Movie from './Movie';
 import MoviePre2 from './MoviePre2';
-import {options} from '../App'
+import { options } from '../MyContext/ConstantContext';
+import { screenStyle } from '../MyContext/ConstantContext';
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    }
-})
+
 
 
 export default function MovieGenre( route, navigation) {
@@ -68,7 +65,7 @@ export default function MovieGenre( route, navigation) {
         }))
 
         return (
-            <View style={styles.container}>
+            <View style = {screenStyle.container}>
                 <FlatList
                     data={data}
                     renderItem={renderItem}

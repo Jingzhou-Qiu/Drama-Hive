@@ -9,15 +9,6 @@ export const styles = StyleSheet.create({
         marginBottom: 0,
         marginLeft: 5,
     },
-    featureText: {
-        fontStyle: 'Roboto',
-        paddingTop: 10,
-        paddingLeft: 8,
-        paddingBottom: 4,
-        color: 'black',
-        fontWeight: '500',
-        fontSize: 20,
-    },
     bigContainer: {
         marginLeft: 10,
         justifyContent: "space-around"

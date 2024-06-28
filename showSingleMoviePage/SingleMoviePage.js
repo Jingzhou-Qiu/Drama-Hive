@@ -1,6 +1,7 @@
 import { Text, StyleSheet, Image, View } from 'react-native';
-import { options } from '../App';
+import { options } from '../MyContext/ConstantContext';
 import { useEffect, useState } from 'react';
+import { screenStyle } from '../MyContext/ConstantContext';
 
 styles = StyleSheet.create({
     firstContainer: {
@@ -56,7 +57,6 @@ getGenreString = (detail) => {
     }
     spokenLang = detail.spoken_languages
     array = detail.genres
-    console.log(detail)
     for (let i = 0; i < array.length; i++) {
         text = text + array[i].name + " "
         if (i == array.length - 1) {
@@ -91,7 +91,6 @@ export default function SingleMoviePage({ route, navigation }) {
 
     async function fetchDetails(id) {
         const url = `https://api.themoviedb.org/3/movie/${id}?language=en-US`;
-        console.log(url)
         let data = await fetch(url, options).then(rs => rs.json())
         setDetail(data)
     }
@@ -100,9 +99,8 @@ export default function SingleMoviePage({ route, navigation }) {
     useEffect(() => { fetchDetails(movie.id) }, [])
     useEffect(() => setSmallTag(getGenreString(detail)), [detail])
 
-    console.log(movie)
     return (
-        <View>
+        <View style = {screenStyle.container}>
             <View style={styles.firstContainer}>
                 <Image source={{ uri: imageUrl }} style={styles.poster} />
                 <View style={styles.first_firstContainer}>

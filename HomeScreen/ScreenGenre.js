@@ -1,6 +1,6 @@
 import { Text, View, TouchableOpacity, ImageBackground } from 'react-native';
 import { useState } from 'react';
-import { options } from '../App';
+import { options } from '../MyContext/ConstantContext';
 import { styles } from './styles';
 import { useNavigation } from '@react-navigation/native';
 

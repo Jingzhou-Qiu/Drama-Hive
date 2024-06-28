@@ -1,6 +1,6 @@
 
 import React, { useState, createContext, useEffect } from 'react';
-import { options } from '../App'
+import { options } from './ConstantContext';
 
 
 export const GenreContext = createContext(null);
