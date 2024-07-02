@@ -1,7 +1,7 @@
 import { Text, ScrollView } from "react-native"
 import { screenStyle, options } from "../MyContext/ConstantContext"
 import { useEffect, useState } from "react"
-import MoviePre2 from "../ShowListPage/MoviePre2"
+import MoviePre2 from "../Movie/MoviePre2"
 
 
 export default function SearchTitle({route}) {

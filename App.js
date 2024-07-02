@@ -1,68 +1,51 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet } from 'react-native';
-import MovieGenre from './ShowListPage/MovieGenre';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import HomeScreen from './HomeScreen/HomeScreen';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import GenreProvider from './MyContext/GenreContext';
-import SingleMoviePage from './showSingleMoviePage/SingleMoviePage';
-import SearchScene from './search/SearchScene';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import AISearch from './search/AISearch';
-import SearchTitle from './search/SearchTitle';
+import * as Facebook from 'expo-auth-session/providers/facebook';
+import { useEffect, useState } from 'react';
+import { Button, View, Text } from 'react-native';
+import { screenStyle } from './MyContext/ConstantContext';
+import * as WebBrowser from 'expo-web-browser';
+import { makeRedirectUri } from 'expo-auth-session';
+import { useNavigation } from '@react-navigation/native';
+import Navigation from './Navigation';
+import * as AuthSession from 'expo-auth-session';
 
-
-
-function HomeScreenNavigate() {
-  const Stack = createNativeStackNavigator();
-  return (
-    <>
-      <Stack.Navigator initialRouteName="HomeScreen" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="HomeScreen" component={HomeScreen} />
-        <Stack.Screen name="MovieGenre" component={MovieGenre} />
-        <Stack.Screen name="Explore" component={SingleMoviePage} />
-        <Stack.Screen name="SearchScene" component={SearchScene} />
-      </Stack.Navigator>
-    </>
-
-  )
-}
-function AICompNavigate(){
-  const Stack = createNativeStackNavigator();
-  return (
-    <>
-      <Stack.Navigator initialRouteName="AISearch" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="AISearch" component={AISearch} />
-        <Stack.Screen name="SearchTitle" component={SearchTitle} />
-      </Stack.Navigator>
-    </>
-
-  )
-
-}
+WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
-  const Tab = createBottomTabNavigator()
-  return (
-    <GenreProvider>
-      <NavigationContainer>
-        <Tab.Navigator screenOptions={{
-          headerShown: false
-        }}>
-          <Tab.Screen name='HomeScreenNavigate' component={HomeScreenNavigate} options ={{headerTitle: "Home", tabBarLabel: 'Home'}}/>
-          <Tab.Screen name='AISearch' component={AICompNavigate} options ={{headerTitle: "Recommend", tabBarLabel: 'Recommend'}}/>
-        </Tab.Navigator>
-      </NavigationContainer>
-    </GenreProvider>
+  const [userInfo, setUserInfo] = useState(null);
+  const [request, response, promptAsync] = Facebook.useAuthRequest({
+    clientId: '207380752470492',
+    redirectUri: makeRedirectUri({
+      scheme: 'DramaHive',
+    }),
+})
 
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      (async () => {
+        const userInfoResponse = await fetch(`https://graph.facebook.com/me?access_token=${response.authentication.accessToken}&fields=id,name,picture.type(large)`);
+        const userInfo = await userInfoResponse.json();
+        setUserInfo(userInfo);
+      })();
+    }
+  }, [response]);
+
+  return (
+    // <View style={screenStyle.container}>
+    //   <Button
+    //     disabled={!request}
+    //     onPress={() => {
+    //       promptAsync();
+    //     }}
+    //     title="Login with Facebook"
+    //   />
+    //   {userInfo && (
+    //     <View>
+    //       <Text>Welcome, {userInfo.name}</Text>
+    //       <Image source={{ uri: userInfo.picture.data.url }} style={{ width: 100, height: 100 }} />
+    //     </View>
+    //   )}
+    // </View>
+    <Navigation/>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

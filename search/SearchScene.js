@@ -1,6 +1,6 @@
 import { options } from '../MyContext/ConstantContext'
 import { useState, useEffect } from "react"
-import MoviePre2 from "../ShowListPage/MoviePre2"
+import MoviePre2 from "../Movie/MoviePre2"
 import { ScrollView } from "react-native"
 import { screenStyle } from '../MyContext/ConstantContext'
 

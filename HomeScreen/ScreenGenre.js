@@ -1,12 +1,13 @@
 import { Text, View, TouchableOpacity, ImageBackground } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { options } from '../MyContext/ConstantContext';
 import { styles } from './styles';
 import { useNavigation } from '@react-navigation/native';
 
 export function ScreenGenre({ genreid, name }) {
-    const navigation = useNavigation()
+    const navigation = useNavigation();
     const [data, setData] = useState(null);
+
     const handlePress = () => navigation.navigate('MovieGenre', { genre: genreid });
 
     async function getMovie(genre_ids) {
@@ -15,14 +16,14 @@ export function ScreenGenre({ genreid, name }) {
             let response = await fetch(url, options);
             let data = await response.json();
             setData('https://image.tmdb.org/t/p/original' + data.results[0].poster_path);
-
         } catch (err) {
             console.log(err);
         }
     };
 
-    getMovie(genreid);
-
+    useEffect(() => {
+        getMovie(genreid);
+    }, [genreid]);
 
     return (
         <TouchableOpacity onPress={handlePress} style={styles.touchableOpacity}>
@@ -32,6 +33,5 @@ export function ScreenGenre({ genreid, name }) {
                 </ImageBackground>
             </View>
         </TouchableOpacity>
-
     );
 }

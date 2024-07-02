@@ -1,15 +1,13 @@
+import React, { useContext, useState, useCallback } from 'react';
 import { Text, View, ScrollView, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import { GenreContext } from '../MyContext/GenreContext';
-import { useContext, useState } from 'react';
 import { styles } from './styles';
 import { ScreenGenre } from './ScreenGenre';
 import { MovieByUrl } from './MovieByUrl';
 import { screenStyle } from '../MyContext/ConstantContext';
 
-
-renderstyle = StyleSheet.create({
-    container:
-    {
+const renderStyle = StyleSheet.create({
+    container: {
         flexDirection: "row",
         flexWrap: 'wrap',
     },
@@ -23,136 +21,120 @@ renderstyle = StyleSheet.create({
         borderRadius: 10,
         paddingLeft: 10,
     },
-})
+});
 
+const RenderGenre = React.memo(({ data }) => {
+    if (!data) return null;
+    return (
+        <View style={renderStyle.container}>
+            {data.map(([genreId, name], index) => (
+                <ScreenGenre genreid={genreId} name={name} key={index} />
+            ))}
+        </View>
+    );
+});
 
-const RenderGenre = ({ data }) => {
+const FeatureToggle = React.memo(({ isActive, onPress, children }) => (
+    <TouchableOpacity onPress={onPress}>
+        <Text style={[textStyles.featureText, { color: isActive ? 'black' : 'grey' }]}>
+            {children}
+        </Text>
+    </TouchableOpacity>
+));
 
-    if (data != null) {
-        return (
-            <View style={renderstyle.container}>
-                {data.map((ele, index) => <ScreenGenre genreid={ele[0]} name={ele[1]} key={index} />)}
-            </View>
-        )
-    }
-
-}
+const textStyles = StyleSheet.create({
+    featureText: {
+        fontFamily: 'Roboto',
+        paddingTop: 10,
+        paddingLeft: 8,
+        paddingBottom: 4,
+        fontWeight: '500',
+        fontSize: 20,
+    },
+});
 
 export default function HomeScreen({ navigation }) {
-    const genreMap = useContext(GenreContext)
-    const[input, setInput] = useState('')
+    const genreMap = useContext(GenreContext);
+    const [input, setInput] = useState('');
+    const [activeFeatures, setActiveFeatures] = useState({
+        nowPlaying: true,
+        upcoming: false,
+        popular: true,
+        topRated: false,
+    });
 
-    const[nowPlaying, setnowPlaying] = useState(true)
-    const[Upcoming, setUpcoming] = useState(false)
-    const[Popular, setPopular] = useState(true)
-    const[Toprated, setToprated] = useState(false)
+    const [urls, setUrls] = useState({
+        main: 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=2',
+        secondary: 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1',
+    });
 
-    const [currUrl, setUrl] = useState('https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=2')
-    const [currUrl2, setUrl2] = useState('https://api.themoviedb.org/3/movie/popular?language=en-US&page=1')
+    const search = useCallback(() => {
+        navigation.navigate("SearchScene", input);
+    }, [navigation, input]);
 
-    
-    const search = () =>{
-        navigation.navigate("SearchScene", input)
-    }
-
-    const textStyles = StyleSheet.create({
-        featureText: {
-            fontStyle: 'Roboto',
-            paddingTop: 10,
-            paddingLeft: 8,
-            paddingBottom: 4,
-            color: 'black',
-            fontWeight: '500',
-            fontSize: 20,
-        },
-        featureTextNowPlaying: {
-            fontStyle: 'Roboto',
-            paddingTop: 10,
-            paddingLeft: 8,
-            paddingBottom: 4,
-            color: nowPlaying? 'black':'grey',
-            fontWeight: '500',
-            fontSize: 20,
-        },
-        featureTextUpcoming: {
-            fontStyle: 'Roboto',
-            paddingTop: 10,
-            paddingLeft: 8,
-            paddingBottom: 4,
-            color: Upcoming? 'black':'grey',
-            fontWeight: '500',
-            fontSize: 20,
-        },
-        featureTextPopular: {
-            fontStyle: 'Roboto',
-            paddingTop: 10,
-            paddingLeft: 8,
-            paddingBottom: 4,
-            color: Popular? 'black':'grey',
-            fontWeight: '500',
-            fontSize: 20,
-        },
-        featureTextTop: {
-            fontStyle: 'Roboto',
-            paddingTop: 10,
-            paddingLeft: 8,
-            paddingBottom: 4,
-            color: Toprated? 'black':'grey',
-            fontWeight: '500',
-            fontSize: 20,
-        },
-
-    })
-
+    const toggleFeature = useCallback((feature, url, urlKey) => {
+        setActiveFeatures(prev => {
+            let newState = { ...prev };
+            if (feature === 'nowPlaying' || feature === 'upcoming') {
+                newState.nowPlaying = feature === 'nowPlaying';
+                newState.upcoming = feature === 'upcoming';
+            } else if (feature === 'popular' || feature === 'topRated') {
+                newState.popular = feature === 'popular';
+                newState.topRated = feature === 'topRated';
+            }
+            return newState;
+        });
+        setUrls(prev => ({ ...prev, [urlKey]: url }));
+    }, []);
 
     return (
-        <View style = {screenStyle.container}>
-            <TextInput placeholder="Explore" style={renderstyle.textInput} onChangeText ={(text) => setInput(text)} onSubmitEditing = {search} value = {input}/>
+        <View style={screenStyle.container}>
+            <TextInput
+                placeholder="Explore"
+                style={renderStyle.textInput}
+                onChangeText={setInput}
+                onSubmitEditing={search}
+                value={input}
+            />
             <ScrollView>
                 <View style={styles.textContiner}>
-                    <TouchableOpacity onPress={() => {
-                        setnowPlaying(true)
-                        setUpcoming(false)
-                        setUrl('https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=2')
-                    }}>
-                        <Text style={textStyles.featureTextNowPlaying}> Now Playing</Text>
-                    </TouchableOpacity>
-                    <Text style={textStyles.featureText} >|</Text>
-                    <TouchableOpacity onPress={() => {
-                        setnowPlaying(false)
-                        setUpcoming(true)
-                        setUrl('https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=2')
-                    }}>
-                        <Text style={textStyles.featureTextUpcoming}> Upcoming </Text>
-                    </TouchableOpacity>
+                    <FeatureToggle
+                        isActive={activeFeatures.nowPlaying}
+                        onPress={() => toggleFeature('nowPlaying', 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=2', 'main')}
+                    >
+                        Now Playing
+                    </FeatureToggle>
+                    <Text style={textStyles.featureText}>|</Text>
+                    <FeatureToggle
+                        isActive={activeFeatures.upcoming}
+                        onPress={() => toggleFeature('upcoming', 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=2', 'main')}
+                    >
+                        Upcoming
+                    </FeatureToggle>
                 </View>
-                <MovieByUrl url={currUrl} />
+                <MovieByUrl url={urls.main} />
 
                 <View style={styles.textContiner}>
-                    <TouchableOpacity onPress={() => {
-                        setPopular(true)
-                        setToprated(false)
-                        setUrl2('https://api.themoviedb.org/3/movie/popular?language=en-US&page=1')
-                    }}>
-                        <Text style={textStyles.featureTextPopular}> Popular </Text>
-                    </TouchableOpacity>
-                    <Text style={textStyles.featureText} >|</Text>
-                    <TouchableOpacity onPress={() => {
-                         setPopular(false)
-                         setToprated(true)
-                        setUrl2('https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1')
-                    }}>
-                        <Text style={textStyles.featureTextTop}> Top Rated </Text>
-                    </TouchableOpacity>
+                    <FeatureToggle
+                        isActive={activeFeatures.popular}
+                        onPress={() => toggleFeature('popular', 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', 'secondary')}
+                    >
+                        Popular
+                    </FeatureToggle>
+                    <Text style={textStyles.featureText}>|</Text>
+                    <FeatureToggle
+                        isActive={activeFeatures.topRated}
+                        onPress={() => toggleFeature('topRated', 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1', 'secondary')}
+                    >
+                        Top Rated
+                    </FeatureToggle>
                 </View>
-                <MovieByUrl url={currUrl2} />
+                <MovieByUrl url={urls.secondary} />
 
                 <View style={styles.bigContainer}>
                     <RenderGenre data={genreMap} />
                 </View>
             </ScrollView>
         </View>
-    )
-
+    );
 }
-

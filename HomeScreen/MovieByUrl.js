@@ -1,39 +1,60 @@
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList } from 'react-native';
-import { useState, useEffect } from 'react';
 import { options } from '../MyContext/ConstantContext';
-import Movie from '../ShowListPage/Movie';
+import Movie from '../Movie/MoviePoster';
 import { styles } from './styles';
 
+const fetchMoviesByUrl = async (url) => {
+  try {
+    const response = await fetch(url, options);
+    const { results } = await response.json();
+    return results.map(({
+      title,
+      genre_ids,
+      overview,
+      poster_path,
+      vote_average,
+      original_language,
+      release_date,
+      id
+    }) => ({
+      title,
+      genre_ids,
+      overview,
+      poster_path,
+      vote_average,
+      lan: original_language,
+      release_date,
+      id
+    }));
+  } catch (error) {
+    console.error('Error fetching movies:', error);
+    return [];
+  }
+};
 
+export function MovieByUrl({ url }) {
+  const [movies, setMovies] = useState([]);
 
+  useEffect(() => {
+    const loadMovies = async () => {
+      const fetchedMovies = await fetchMoviesByUrl(url);
+      setMovies(fetchedMovies);
+    };
 
-async function fetchMoviebyUrl(url) {
-    let data = await fetch(url, options).then(rs => rs.json());
-    data = data.results.map((item) => {
-        return movie = {
-            title: item.title,
-            genre_ids: item.genre_ids,
-            overview: item.overview,
-            poster_path: item.poster_path,
-            vote_average: item.vote_average,
-            lan: item.original_language,
-            release_date: item.release_date,
-            id: item.id
-        };
-    });
-    return data;
-}
-;
-export function MovieByUrl({ url, name }) {
-    const [data, setData] = useState(null);
-    useEffect(() => {
-        fetchMoviebyUrl(url).then((rs) => setData(rs));
-    }, [url]);
+    loadMovies();
+  }, [url]);
 
-    return (
-        <View style={styles.featureContainer}>
-            <FlatList horizontal data={data} renderItem={(item) => <Movie movie={item.item} />} />
-        </View>
-    );
+  const renderMovie = useCallback(({ item }) => <Movie movie={item} />, []);
 
+  return (
+    <View style={styles.featureContainer}>
+      <FlatList
+        horizontal
+        data={movies}
+        renderItem={renderMovie}
+        keyExtractor={(item) => item.id.toString()}
+      />
+    </View>
+  );
 }

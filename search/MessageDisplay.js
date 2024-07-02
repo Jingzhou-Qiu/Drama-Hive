@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
+    lineHeight: 21,
   },
 });
 

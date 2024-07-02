@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TextInput, KeyboardAvoidingView, Platform } from "react-native"
+import { View, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native"
 import { screenStyle } from '../MyContext/ConstantContext'
 import { useState } from "react"
 import MessageDisplay from "./MessageDisplay"
