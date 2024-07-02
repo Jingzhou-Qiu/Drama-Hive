@@ -5,21 +5,26 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import MovieGenre from './Movie/MovieGenre';
-import HomeScreen from './HomeScreen/HomeScreen';
+import MovieHome from './MovieHomeScreen/MovieHome';
 import GenreProvider from './MyContext/GenreContext';
 import SingleMoviePage from './Movie/SingleMoviePage';
 import SearchScene from './search/SearchScene';
 import AISearch from './search/AISearch';
 import SearchTitle from './search/SearchTitle';
 import TvHomeScreen from './TVShows/TvScreen';
+import TVGenre from './TVShows/TVGenre';
+import TVGenreProvider from './MyContext/TvGenreContext';
+import SingleTVPage from './TVShows/SingleTVPage'
+
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-const TopTab = createMaterialTopTabNavigator();
+const TopTab = createNativeStackNavigator();
+const TvStack = createNativeStackNavigator();
 
 const MovieStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="HomeScreen" component={HomeScreen} />
+    <Stack.Screen name="HomeScreen" component={MovieHome} />
     <Stack.Screen name="MovieGenre" component={MovieGenre} />
     <Stack.Screen name="Explore" component={SingleMoviePage} />
     <Stack.Screen name="SearchScene" component={SearchScene} />
@@ -27,17 +32,14 @@ const MovieStack = () => (
 );
 
 const TVStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="TvHomeScreen" component={TvHomeScreen} />
-  </Stack.Navigator>
+  <TvStack.Navigator screenOptions={{ headerShown: false }}>
+    <TvStack.Screen name="TvHomeScreen" component={TvHomeScreen} />
+    <TvStack.Screen name="TVGenre" component={TVGenre} />
+    <TvStack.Screen name="ExploreTV" component={SingleTVPage} />
+    <TvStack.Screen name="SearchScene" component={SearchScene} />
+  </TvStack.Navigator>
 );
 
-const TopTabNavigator = () => (
-  <TopTab.Navigator screenOptions={{ headerShown: false }}>
-    <TopTab.Screen name="Movies" component={MovieStack} />
-    <TopTab.Screen name="TV Shows" component={TVStack} />
-  </TopTab.Navigator>
-);
 
 const AIStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -49,21 +51,29 @@ const AIStack = () => (
 
 const Navigation = () => (
   <GenreProvider>
-    <NavigationContainer>
-      <Tab.Navigator screenOptions={{ headerShown: false }}>
-        <Tab.Screen
-          name="Home"
-          component={TopTabNavigator}
-          options={{ tabBarLabel: 'Home' }}
-        />
-        <Tab.Screen
-          name="Recommend"
-          component={AIStack}
-          options={{ tabBarLabel: 'Recommend' }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <TVGenreProvider>
+      <NavigationContainer>
+        <Tab.Navigator screenOptions={{ headerShown: false }}>
+          <Tab.Screen
+            name="Movie"
+            component={MovieStack}
+            options={{ tabBarLabel: 'Movie' }}
+          />
+          <Tab.Screen
+            name="TV"
+            component={TVStack}
+            options={{ tabBarLabel: 'TV' }}
+          />
+          <Tab.Screen
+            name="Recommend"
+            component={AIStack}
+            options={{ tabBarLabel: 'Recommend' }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </TVGenreProvider>
   </GenreProvider>
+
 );
 
 export default Navigation;

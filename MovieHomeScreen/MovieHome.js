@@ -53,7 +53,7 @@ const textStyles = StyleSheet.create({
     },
 });
 
-export default function HomeScreen({ navigation }) {
+export default function MovieHome({ navigation }) {
     const genreMap = useContext(GenreContext);
     const [input, setInput] = useState('');
     const [activeFeatures, setActiveFeatures] = useState({

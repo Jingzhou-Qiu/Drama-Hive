@@ -6,7 +6,6 @@ import { options } from './ConstantContext';
 export const GenreContext = createContext(null);
 
 
-
 export default function GenreProvider({ children }) {
     const [genreMap, setGenre] = useState(null)
 

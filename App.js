@@ -5,8 +5,8 @@ import { screenStyle } from './MyContext/ConstantContext';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri } from 'expo-auth-session';
 import { useNavigation } from '@react-navigation/native';
-import Navigation from './Navigation';
 import * as AuthSession from 'expo-auth-session';
+import Navigation from './Navigation';
 
 WebBrowser.maybeCompleteAuthSession();
 
