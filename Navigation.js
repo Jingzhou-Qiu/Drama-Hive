@@ -40,6 +40,7 @@ const TVStack = () => (
     <TvStack.Screen name="TVGenre" component={TVGenre} />
     <TvStack.Screen name="ExploreTV" component={SingleTVPage} />
     <TvStack.Screen name="SearchScene" component={SearchScene} />
+    <TvStack.Screen name="WriteReview" component={WriteReview} />
   </TvStack.Navigator>
 );
 
