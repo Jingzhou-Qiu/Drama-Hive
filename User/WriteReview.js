@@ -2,6 +2,8 @@ import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import UserContext from '../MyContext/UserContext';
+import { useNavigation } from '@react-navigation/native';
+import { addData } from '../MyContext/Firebase';
 
 const Star = ({ filled, onPress, size }) => (
     <TouchableOpacity onPress={onPress} style={styles.starButton}>
@@ -14,25 +16,26 @@ const Star = ({ filled, onPress, size }) => (
 );
 
 
-const WriteReview = () => {
+const WriteReview = ({route}) => {
     const [selectedOption, setSelectedOption] = useState('Watched');
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const user = useContext(UserContext)
+    const navigation = useNavigation();
+    const add = addData;
     const handleStarPress = (selectedRating) => {
         setRating(selectedRating);
     };
     const submit = () => {
-        console.log(user)
-        console.log(rating)
-        console.log(review)
+        add("Review", { user, rating, review, date: new Date(), id: route.params.id, type: route.params.type })
+        navigation.goBack()
 
     }
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity><Text style={styles.cancelButton}>Cancel</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => { navigation.goBack() }}><Text style={styles.cancelButton}>Cancel</Text></TouchableOpacity>
                 <TouchableOpacity onPress={submit}><Text style={styles.confirmButton}>Confirm</Text></TouchableOpacity>
             </View>
 
@@ -74,8 +77,8 @@ const WriteReview = () => {
 
 const styles = StyleSheet.create({
     starButton: {
-        padding: 3, 
-      },
+        padding: 3,
+    },
     container: {
         flex: 1,
         padding: 20,
@@ -112,18 +115,18 @@ const styles = StyleSheet.create({
     },
     starRating: {
         marginBottom: 20,
-        justifyContent:"center"
+        justifyContent: "center"
     },
     starContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-      },
-      ratingLabel: {
+    },
+    ratingLabel: {
         fontSize: 16,
         marginBottom: 10,
         color: '#888',
-      },
+    },
     reviewInput: {
         height: 100,
         borderColor: 'gray',
