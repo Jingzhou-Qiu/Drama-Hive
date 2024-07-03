@@ -1,51 +1,106 @@
-import * as Facebook from 'expo-auth-session/providers/facebook';
-import { useEffect, useState } from 'react';
-import { Button, View, Text } from 'react-native';
-import { screenStyle } from './MyContext/ConstantContext';
-import * as WebBrowser from 'expo-web-browser';
-import { makeRedirectUri } from 'expo-auth-session';
-import { useNavigation } from '@react-navigation/native';
-import * as AuthSession from 'expo-auth-session';
-import Navigation from './Navigation';
+import React, { useRef, useState } from 'react';
+import { TouchableOpacity, Text, TextInput, View, Alert} from 'react-native';
+import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
+import Constants from 'expo-constants';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import styles from './styles';
+import { getAuth, signInWithPhoneNumber, PhoneAuthProvider, signInWithCredential } from "firebase/auth";
 
-WebBrowser.maybeCompleteAuthSession();
+import { initializeApp } from 'firebase/app';
+import '@firebase/auth';
 
-export default function App() {
-  const [userInfo, setUserInfo] = useState(null);
-  const [request, response, promptAsync] = Facebook.useAuthRequest({
-    clientId: '207380752470492',
-    redirectUri: makeRedirectUri({
-      scheme: 'DramaHive',
-    }),
-})
+const firebaseConfig = {
+    apiKey: "AIzaSyDXExwRQk28MWaI9jtIoYHLvGRaYlRSN-E",
+    authDomain: "dramahive-2d5f7.firebaseapp.com",
+    projectId: "dramahive-2d5f7",
+    storageBucket: "dramahive-2d5f7.appspot.com",
+    messagingSenderId: "167741254400",
+    appId: "1:167741254400:web:17368d2d5364085bb3a1e5",
+    measurementId: "G-HSH5C1LV69"
+  };
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth();
 
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      (async () => {
-        const userInfoResponse = await fetch(`https://graph.facebook.com/me?access_token=${response.authentication.accessToken}&fields=id,name,picture.type(large)`);
-        const userInfo = await userInfoResponse.json();
-        setUserInfo(userInfo);
-      })();
+export default App = () => {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [code, setCode] = useState('');
+  const [verificationId, setVerificationId] = useState(null);
+  const [confirm, setConfirm] = useState(null);
+  const recaptchaVerifier = useRef(null);
+  const auth = getAuth(app);
+
+  const sendVerification = () => {
+    signInWithPhoneNumber(auth, "+1 "+phoneNumber, recaptchaVerifier.current)
+    .then((confirmationResult) => {
+      window.confirmationResult = confirmationResult;
+      console.log(confirmationResult)
+      setConfirm(confirmationResult);
+      // ...
+    }).catch((error) => {
+      console.log("error:",error)
+    });
+  };
+
+  // async function sendVerification() {
+  //   const confirmation = await signInWithPhoneNumber(phoneNumber);
+  //   setConfirm(confirmation);
+  // }
+
+  // const confirmCode = () => {
+  //   const credential = PhoneAuthProvider.credential(
+  //     verificationId,
+  //     code
+  //   );
+    
+  // signInWithCredential(credential)
+  //     .then((result) => {
+  //       console.log(result);
+  //     });
+  // };
+
+  async function confirmCode() {
+    try {
+      rs = await confirm.confirm(code);
+      Alert.alert("sign in")
+      console.log(rs)
+    } catch (error) {
+      console.log('Invalid code.'+ error);
     }
-  }, [response]);
+  }
 
   return (
-    // <View style={screenStyle.container}>
-    //   <Button
-    //     disabled={!request}
-    //     onPress={() => {
-    //       promptAsync();
-    //     }}
-    //     title="Login with Facebook"
-    //   />
-    //   {userInfo && (
-    //     <View>
-    //       <Text>Welcome, {userInfo.name}</Text>
-    //       <Image source={{ uri: userInfo.picture.data.url }} style={{ width: 100, height: 100 }} />
-    //     </View>
-    //   )}
-    // </View>
-    <Navigation/>
+    <KeyboardAwareScrollView contentContainerStyle={styles.container}>
+      <View>
+        <FirebaseRecaptchaVerifierModal
+          ref={recaptchaVerifier}
+          firebaseConfig={firebaseConfig}
+        />
+        <TextInput
+          placeholder="Phone Number"
+          onChangeText={setPhoneNumber}
+          keyboardType="phone-pad"
+          autoCompleteType="tel"
+          style={styles.textInput}
+        />
+        <TouchableOpacity
+          style={styles.sendVerification}
+          onPress={sendVerification}
+        >
+          <Text style={styles.buttonText}>Send Verification</Text>
+        </TouchableOpacity>
+        <TextInput
+          placeholder="Confirmation Code"
+          onChangeText={setCode}
+          keyboardType="number-pad"
+          style={styles.textInput}
+        />
+        <TouchableOpacity style={styles.sendCode} onPress={confirmCode}>
+          <Text style={styles.buttonText}>Send Verification</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAwareScrollView>
   );
-}
+};

@@ -2,7 +2,7 @@
   "expo": {
     "name": "DramaHive",
     "slug": "DramaHive",
-    "scheme":"DramaHive",
+    "scheme": "DramaHive",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,9 +13,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "bundleIdentifier": "com.dramahive.facebooklogin",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.dramahive.facebooklogin",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -23,7 +25,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ecca4666-ece7-43a4-a252-1fd9b8e3be89"
+      }
     }
-    
   }
 }
