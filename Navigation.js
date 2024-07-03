@@ -2,7 +2,6 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import MovieGenre from './Movie/MovieGenre';
 import MovieHome from './MovieHomeScreen/MovieHome';
@@ -15,6 +14,8 @@ import TvHomeScreen from './TVShows/TvScreen';
 import TVGenre from './TVShows/TVGenre';
 import TVGenreProvider from './MyContext/TvGenreContext';
 import SingleTVPage from './TVShows/SingleTVPage'
+import UserScreen from './User/UserScreen';
+import WriteReview from './User/WriteReview';
 
 
 const Stack = createNativeStackNavigator();
@@ -28,6 +29,8 @@ const MovieStack = () => (
     <Stack.Screen name="MovieGenre" component={MovieGenre} />
     <Stack.Screen name="Explore" component={SingleMoviePage} />
     <Stack.Screen name="SearchScene" component={SearchScene} />
+    <Stack.Screen name="WriteReview" component={WriteReview} />
+  
   </Stack.Navigator>
 );
 
@@ -68,6 +71,11 @@ const Navigation = () => (
             name="Recommend"
             component={AIStack}
             options={{ tabBarLabel: 'Recommend' }}
+          />
+          <Tab.Screen
+            name="user"
+            component={UserScreen}
+            options={{ tabBarLabel: 'Me' }}
           />
         </Tab.Navigator>
       </NavigationContainer>

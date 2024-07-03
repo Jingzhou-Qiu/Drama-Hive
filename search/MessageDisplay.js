@@ -21,7 +21,7 @@ const MessageDisplay = ({ messages }) => {
       );
     } else {
       return (
-        <TouchableOpacity style={[styles.messageBubble, styles.receivedMessage]} onPress={()=>gotoMoviePage(item.movieTitle)}>
+        <TouchableOpacity style={[styles.messageBubble, styles.receivedMessage]} onPress={() => gotoMoviePage(item.movieTitle)}>
           <Text style={styles.messageText}>{item.text}</Text>
         </TouchableOpacity>
       );

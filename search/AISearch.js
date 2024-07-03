@@ -1,5 +1,4 @@
 import { View, StyleSheet, TextInput, KeyboardAvoidingView, Platform } from "react-native"
-import { screenStyle } from '../MyContext/ConstantContext'
 import { useState } from "react"
 import MessageDisplay from "./MessageDisplay"
 import feed from "./OpenAI"
@@ -11,7 +10,7 @@ const style = StyleSheet.create({
         borderRadius: 20,
         justifyContent: "flex-end",
         backgroundColor: "#E0ECDE",
-        height: 750,
+        height: 800,
         flexDirection: "column",
 
     },
@@ -50,7 +49,7 @@ export default function AISearch() {
 
 
     return (
-        <View style={screenStyle.container}>
+        <View style={[{marginTop: 0}]}>
             <KeyboardAvoidingView style={style.messageContainer}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}>
                 <MessageDisplay messages={message} />
