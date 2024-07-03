@@ -40,7 +40,7 @@ const MessageDisplay = ({ messages }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 10,
+    marginTop: 50,
     padding: 10,
   },
   messageBubble: {
