@@ -11,16 +11,23 @@ import {
   ScrollView,
 } from 'react-native';
 
-const Confirmation = () => {
-  const [name, setName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
-  const navigation = useNavigation();
 
-  const handleSignUp = () => {
-    // Implement sign up logic here
-    console.log('Signing up with:', { name, email, phoneNumber, password });
-  };
+const Confirmation = ({route}) => {
+  const [authcode, setAuthCode] = useState('');
+  const [error, setError] = useState('');
+  const navigation = useNavigation();
+  const phoneNumber = route.params.phoneNumber
+  const confirm = route.params.confirm
+
+  async function confirmCode(){
+    try {
+      setError(''); // Clear any previous errors
+      const rs = await confirm.confirm(authcode);
+      navigation.navigate("SetupAccountPage", { phoneNumber})
+    } catch (error) {
+      setError('Invalid code. Please try again.');
+    }
+  }
 
   return (
     <KeyboardAvoidingView
@@ -31,18 +38,19 @@ const Confirmation = () => {
         <View style={styles.formContainer}>
           <Text style={styles.title}>Create Account</Text>
           
-          
           <TextInput
             style={styles.input}
             placeholder="Auth Code"
             keyboardType="phone-pad"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
+            value={authcode}
+            onChangeText={setAuthCode}
           />
+          
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
           
           <TouchableOpacity
             style={styles.button}
-            onPress={handleSignUp}
+            onPress={confirmCode}
           >
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
@@ -76,7 +84,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 5,
-    marginBottom: 15,
+    marginBottom: 5,  
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: 'center',
   },
   button: {
     backgroundColor: '#007AFF',
@@ -99,4 +113,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignUpPage;
+export default Confirmation;

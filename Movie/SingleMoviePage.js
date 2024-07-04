@@ -1,278 +1,360 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react';
-import { Text, StyleSheet, Image, View, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { 
+  Text, 
+  StyleSheet, 
+  Image, 
+  View, 
+  TouchableOpacity, 
+  ScrollView, 
+  Alert,
+  ActivityIndicator,
+  Dimensions
+} from 'react-native';
 import { options, screenStyle } from '../MyContext/ConstantContext';
 import { useNavigation } from '@react-navigation/native';
-import { getDataWithFilter } from '../MyContext/Firebase';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { getDataWithFilter, addData } from '../MyContext/Firebase';
 import { useFocusEffect } from '@react-navigation/native';
+import UserContext from '../MyContext/UserContext';
 
-
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const baseUrl = 'https://image.tmdb.org/t/p/original';
 
 const getGenreString = (detail) => {
     if (!detail) return '';
-
-    let text = '';
-    const { spoken_languages, genres, status, release_date } = detail;
-
-    genres?.forEach((genre, index) => {
-        text += `${genre.name}${index === genres.length - 1 ? ' / ' : ' '}`;
-    });
-
-    spoken_languages?.forEach((lang, index) => {
-        text += `${lang.english_name}${index === spoken_languages.length - 1 ? ' / ' : ' '}`;
-    });
-
-    if (status) text += `${status} / `;
-    if (release_date) text += release_date;
-
+    const { genres, release_date } = detail;
+    let text = genres?.map(genre => genre.name).join(', ') || '';
+    if (release_date) text += ` • ${release_date.split('-')[0]}`;
     return text;
 };
 
-const MoviePoster = ({ imageUrl }) => (
+const MoviePoster = ({ imageUrl, backdropUrl }) => (
+  <View style={styles.posterContainer}>
+    <Image source={{ uri: backdropUrl }} style={styles.backdropImage} />
+    <View style={styles.posterOverlay} />
     <Image source={{ uri: imageUrl }} style={styles.poster} />
+  </View>
 );
 
 const MovieInfo = ({ title, tagline, smallTag }) => (
-    <View style={styles.first_firstContainer}>
-        <Text style={styles.titleText}>{title}</Text>
-        <Text style={styles.tagline}>{tagline}</Text>
-        <Text style={styles.smallTag}>{smallTag}</Text>
-    </View>
+  <View style={styles.infoContainer}>
+    <Text style={styles.titleText}>{title}</Text>
+    {tagline ? <Text style={styles.tagline}>"{tagline}"</Text> : null}
+    <Text style={styles.smallTag}>{smallTag}</Text>
+  </View>
 );
-
-
 
 const ActionButtons = ({ id }) => {
-    const navigation = useNavigation();
-    const writeReview = () => {
-        navigation.navigate("WriteReview", { id, type: "movie" })
+  const navigation = useNavigation();
+  const context = useContext(UserContext);
+  const phoneNumber = context.phoneNumber;
+
+  const writeReview = () => {
+    if (!phoneNumber) {
+      Alert.alert("Sign In Required", "Please sign in to write a review.");
+      return;
     }
+    navigation.navigate("WriteReview", { id, type: "movie" });
+  };
 
+  const addLike = () => {
+    if (!phoneNumber) {
+      Alert.alert("Sign In Required", "Please sign in to add to favorites.");
+      return;
+    }
+    addData("Like", {phoneNumber, id});
+    Alert.alert("Success", "Added to favorites!");
+  };
 
-    return (
-        <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Add</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={writeReview}>
-                <Text style={styles.buttonText}>Watched</Text>
-            </TouchableOpacity>
-        </View>
-    )
+  return (
+    <View style={styles.buttonContainer}>
+      <TouchableOpacity style={[styles.button, styles.favoriteButton]} onPress={addLike}>
+        <Text style={styles.buttonText}>♥ Add to Favorites</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, styles.reviewButton]} onPress={writeReview}>
+        <Text style={styles.buttonText}>✎ Write Review</Text>
+      </TouchableOpacity>
+    </View>
+  );
 };
 
-
-export default function SingleMoviePage({ route }) {
-    const [detail, setDetail] = useState(null);
-    const [smallTag, setSmallTag] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
-    const [review, setReview] = useState(null)
-    const { movie } = route.params;
-    const imageUrl = baseUrl + movie.poster_path;
-
-    const fetchDetails = async (id) => {
-        setIsLoading(true);
-        try {
-            const url = `https://api.themoviedb.org/3/movie/${id}?language=en-US`;
-            const response = await fetch(url, options);
-            const data = await response.json();
-            setDetail(data);
-            setSmallTag(getGenreString(data));
-        } catch (error) {
-            console.error('Error fetching movie details:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchDetails(movie.id);
-        getDataWithFilter("Review", "id", '==', movie.id).then(rs => setReview(rs))
-    }, [movie.id]);
-
-    useFocusEffect(
-        useCallback(()=>{getDataWithFilter("Review", "id", '==', movie.id).then(rs => setReview(rs))},[])
-    )
-
-    if (isLoading) {
-        return <Text>Loading...</Text>;
-    }
-
-    return (
-        <ScrollView style={screenStyle.container}>
-            <View style={styles.firstContainer}>
-                <MoviePoster imageUrl={imageUrl} />
-                <MovieInfo
-                    title={movie.title}
-                    tagline={detail?.tagline ?? ''}
-                    smallTag={smallTag}
-                />
-            </View>
-            <ActionButtons id={movie.id} />
-            {movie.overview && (
-                <Text style={styles.text_overview}>
-                    Overview: {movie.overview}
-                </Text>
-            )}
-            <ReviewComponent data={review} />
-        </ScrollView>
-    );
-}
-const Star = ({ filled, size }) => (
-    <TouchableOpacity style={styles.starButton}>
-        <Icon
-            name={filled ? 'star' : 'star-o'}
-            size={size}
-            color={filled ? 'gold' : 'lightgray'}
-        />
-    </TouchableOpacity>
+const Star = ({ filled }) => (
+  <Text style={[styles.starText, filled ? styles.filledStar : styles.emptyStar]}>
+    {filled ? '★' : '☆'}
+  </Text>
 );
 
-const ReviewComponent = ({ data }) => {
+const ReviewItem = ({ item }) => {
+  const [user, setUser] = useState('');
 
-    const renderItem = ({ item }) => (
-        <View style={styles.reviewContainer}>
-            <View style={styles.userInfo}>
-                <Text style={styles.username}>{item.user}</Text>
-            </View>
+  useEffect(() => {
+    const getUser = async () => {
+      const rs = await getDataWithFilter("UserInfo", "phoneNumber", "==", item.phoneNumber);
+      setUser(rs[0]?.username || 'Anonymous');
+    };
+    getUser();
+  }, [item.phoneNumber]);
 
-            <View style={styles.reviewContent}>
-                <View style={[{ flexDirection: "row" }, {marginBottom:10}]}>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                            key={star}
-                            filled={star <= item.rating}
-                            size={10}
-                        />
-                    ))}
-                </View>
-                <Text style={styles.reviewText}>{item.review}</Text>
-            </View>
+  return (
+    <View style={styles.reviewCard}>
+      <View style={styles.reviewHeader}>
+        <Text style={styles.username}>{user}</Text>
+        <View style={styles.rating}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star key={star} filled={star <= item.rating} />
+          ))}
         </View>
-    );
-    if (data){
-        return (
-            <View style={styles.listContainer}>
-            {
-                data.map((item)=>renderItem({item}))
-            }
-            </View>
-        );
-
-    }
+      </View>
+      <Text style={styles.reviewText}>{item.review}</Text>
+    </View>
+  );
 };
 
+const ReviewComponent = ({ data }) => {
+  if (!data || data.length === 0) {
+    return <Text style={styles.noReviews}>No reviews yet. Be the first to review!</Text>;
+  }
+
+  return (
+    <View style={styles.reviewsList}>
+      {data.map((item) => (
+        <ReviewItem key={item.id} item={item} />
+      ))}
+    </View>
+  );
+};
+
+const LoadingScreen = () => (
+  <View style={styles.loadingContainer}>
+    <ActivityIndicator size="large" color="#0000ff" />
+    <Text style={styles.loadingText}>Loading movie details...</Text>
+  </View>
+);
+
+export default function SingleMoviePage({ route }) {
+  const [detail, setDetail] = useState(null);
+  const [smallTag, setSmallTag] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [review, setReview] = useState(null);
+  const { movie } = route.params;
+  const imageUrl = baseUrl + movie.poster_path;
+  const backdropUrl = baseUrl + movie.backdrop_path;
+
+  const fetchDetails = async (id) => {
+    setIsLoading(true);
+    try {
+      const url = `https://api.themoviedb.org/3/movie/${id}?language=en-US`;
+      const response = await fetch(url, options);
+      const data = await response.json();
+      setDetail(data);
+      setSmallTag(getGenreString(data));
+    } catch (error) {
+      console.error('Error fetching movie details:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDetails(movie.id);
+    getDataWithFilter("Review", "id", '==', movie.id).then(rs => setReview(rs));
+  }, [movie.id]);
+
+  useFocusEffect(
+    useCallback(() => { 
+      getDataWithFilter("Review", "id", '==', movie.id).then(rs => setReview(rs));
+    }, [])
+  );
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <ScrollView style={styles.container}>
+      <MoviePoster imageUrl={imageUrl} backdropUrl={backdropUrl} />
+      <View style={styles.contentContainer}>
+        <MovieInfo
+          title={movie.title}
+          tagline={detail?.tagline}
+          smallTag={smallTag}
+        />
+        <ActionButtons id={movie.id} />
+        {movie.overview && (
+          <View style={styles.overviewContainer}>
+            <Text style={styles.overviewTitle}>Overview</Text>
+            <Text style={styles.overview}>{movie.overview}</Text>
+          </View>
+        )}
+        <View style={styles.reviewsHeader}>
+          <Text style={styles.reviewsTitle}>Reviews</Text>
+        </View>
+        <ReviewComponent data={review} />
+      </View>
+    </ScrollView>
+  );
+}
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    listContainer: {
-        paddingHorizontal: 16,
-    },
-    reviewContainer: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        padding: 16,
-        marginVertical: 8,
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 3,
-    },
-    profileImage: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        marginRight: 10,
-    },
-    userInfo: {
-        flex: 1,
-    },
-    username: {
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    date: {
-        color: '#888',
-        fontSize: 12,
-    },
-    reviewContent: {
-        marginTop: 5,
-    },
-    reviewText: {
-        fontSize: 14,
-        color: '#333',
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        marginRight: 20,
-    },
-    button: {
-        height: 30,
-        width: 75,
-        backgroundColor: '#fff',
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 15,
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        marginRight: 20,
-        alignItems: "center"
-    },
-    buttonText: {
-        color: '#333',
-        fontSize: 12,
-    },
-    firstContainer: {
-        flexDirection: "row"
-    },
-    first_firstContainer: {
-        marginLeft: 25,
-        marginTop: 20,
-        flex: 1,
-    },
-    titleText: {
-        fontSize: 20,
-        textAlign: 'left',
-        marginTop: 10,
-        paddingTop: 3,
-        textAlignVertical: 'center',
-        fontFamily: 'Arial',
-        fontWeight: '500'
-    },
-    poster: {
-        marginLeft: 20,
-        marginTop: 20,
-        resizeMode: 'cover',
-        width: 97.2,
-        height: 144,
-        borderRadius: 20,
-    },
-    smallTag: {
-        fontSize: 12,
-        textAlign: 'left',
-    },
-    text_overview: {
-        marginTop: 10,
-        marginLeft: 15,
-        marginRight: 10,
-        fontSize: 16,
-        fontFamily: "Helvetica Neue",
-        fontWeight: '400',
-        lineHeight: 20,
-        letterSpacing: 0.5,
-        color: '#333',
-        textAlign: 'justify',
-    },
-    tagline: {
-        marginBottom: 10,
-        fontWeight: '400',
-    }
+  container: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+  },
+  posterContainer: {
+    height: SCREEN_WIDTH * 0.75,
+    position: 'relative',
+  },
+  backdropImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
+  posterOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  poster: {
+    width: 120,
+    height: 180,
+    position: 'absolute',
+    bottom: -30,
+    left: 20,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  contentContainer: {
+    padding: 20,
+    paddingTop: 40,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    marginTop: -20,
+  },
+  infoContainer: {
+    marginBottom: 20,
+  },
+  titleText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  tagline: {
+    fontSize: 16,
+    color: '#666',
+    fontStyle: 'italic',
+    marginBottom: 5,
+  },
+  smallTag: {
+    fontSize: 14,
+    color: '#888',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  button: {
+    flex: 1,
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+  },
+  favoriteButton: {
+    backgroundColor: '#FF6B6B',
+    marginRight: 10,
+  },
+  reviewButton: {
+    backgroundColor: '#4ECDC4',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  overviewContainer: {
+    marginBottom: 20,
+  },
+  overviewTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  overview: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: '#333',
+  },
+  reviewsHeader: {
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    paddingTop: 20,
+    marginBottom: 10,
+  },
+  reviewsTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  reviewsList: {
+    marginTop: 10,
+  },
+  reviewCard: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  username: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  rating: {
+    flexDirection: 'row',
+  },
+  starText: {
+    fontSize: 18,
+  },
+  filledStar: {
+    color: '#FFD700',
+  },
+  emptyStar: {
+    color: '#D3D3D3',
+  },
+  reviewText: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+  noReviews: {
+    fontSize: 16,
+    color: '#666',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+  },
 });

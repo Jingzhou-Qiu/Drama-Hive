@@ -41,7 +41,7 @@ export default function AISearch() {
 
     const handleSubmission = () => {
         setMessage(prevMessages => [...prevMessages, {text: input, sender: 'me', id: num}]);
-        feed(input).then(rs => setMessage(prevMessages => [...prevMessages, {text: rs.message, sender: 'assistant', movieTitle: rs.movieTitles, id: num + 1}]))
+        feed(input).then(rs => setMessage(prevMessages =>[...prevMessages, {text: rs.message, sender: 'assistant', id: num + 1, info: rs.info}]))
         setInput(null)
         setNum(num + 2)
 

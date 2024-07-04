@@ -20,14 +20,16 @@ const WriteReview = ({route}) => {
     const [selectedOption, setSelectedOption] = useState('Watched');
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
-    const user = useContext(UserContext)
+    const context = useContext(UserContext)
     const navigation = useNavigation();
     const add = addData;
     const handleStarPress = (selectedRating) => {
         setRating(selectedRating);
     };
+    const phoneNumber = context.phoneNumber
+
     const submit = () => {
-        add("Review", { user, rating, review, date: new Date(), id: route.params.id, type: route.params.type })
+        add("Review", { phoneNumber, rating, review, date: new Date(), id: route.params.id, type: route.params.type })
         navigation.goBack()
 
     }

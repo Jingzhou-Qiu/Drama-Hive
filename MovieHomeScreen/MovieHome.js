@@ -1,59 +1,75 @@
 import React, { useContext, useState, useCallback } from 'react';
-import { Text, View, ScrollView, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import { Text, View, ScrollView, TouchableOpacity, StyleSheet, TextInput, StatusBar } from 'react-native';
 import { GenreContext } from '../MyContext/GenreContext';
-import { styles } from './styles';
 import { ScreenGenre } from './ScreenGenre';
 import { MovieByUrl } from './MovieByUrl';
 import { screenStyle } from '../MyContext/ConstantContext';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-const renderStyle = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
-        flexDirection: "row",
-        flexWrap: 'wrap',
+        ...screenStyle.container,
+        backgroundColor: '#f8f8f8',
     },
-    textInput: {
-        marginTop: 8,
-        marginLeft: 30,
-        marginBottom: 5,
-        width: 300,
-        height: 30,
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 16,
+        marginTop: 16,
+        marginBottom: 8,
         backgroundColor: "#e4e7e5",
-        borderRadius: 10,
-        paddingLeft: 10,
+        borderRadius: 20,
+        paddingHorizontal: 12,
     },
-});
-
-const RenderGenre = React.memo(({ data }) => {
-    if (!data) return null;
-    return (
-        <View style={renderStyle.container}>
-            {data.map(([genreId, name], index) => (
-                <ScreenGenre genreid={genreId} name={name} key={index} />
-            ))}
-        </View>
-    );
+    searchInput: {
+        flex: 1,
+        height: 40,
+        fontSize: 16,
+        marginLeft: 8,
+    },
+    featureContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        marginHorizontal: 16,
+        marginVertical: 12,
+    },
+    featureText: {
+        fontFamily: 'Roboto-Medium',
+        fontSize: 18,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        marginRight: 8,
+    },
+    genreTitle: {
+        fontFamily: 'Roboto-Bold',
+        fontSize: 20,
+        marginVertical: 12,
+        marginLeft: 16,
+        color: '#333',
+    },
+    genreContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        padding: 8,
+    },
 });
 
 const FeatureToggle = React.memo(({ isActive, onPress, children }) => (
     <TouchableOpacity onPress={onPress}>
-        <Text style={[textStyles.featureText, { color: isActive ? 'black' : 'grey' }]}>
+        <Text style={[
+            styles.featureText, 
+            { color: isActive ? '#007AFF' : '#666',
+              borderBottomWidth: isActive ? 2 : 0,
+              borderBottomColor: '#007AFF' }
+        ]}>
             {children}
         </Text>
     </TouchableOpacity>
 ));
 
-const textStyles = StyleSheet.create({
-    featureText: {
-        fontFamily: 'Roboto',
-        paddingTop: 10,
-        paddingLeft: 8,
-        paddingBottom: 4,
-        fontWeight: '500',
-        fontSize: 20,
-    },
-});
-
-export default function MovieHome({ navigation }) {
+export default function MovieHome() {
     const genreMap = useContext(GenreContext);
     const [input, setInput] = useState('');
     const [activeFeatures, setActiveFeatures] = useState({
@@ -62,6 +78,7 @@ export default function MovieHome({ navigation }) {
         popular: true,
         topRated: false,
     });
+    const navigation = useNavigation();
 
     const [urls, setUrls] = useState({
         main: 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=2',
@@ -88,23 +105,26 @@ export default function MovieHome({ navigation }) {
     }, []);
 
     return (
-        <View style={screenStyle.container}>
-            <TextInput
-                placeholder="Explore"
-                style={renderStyle.textInput}
-                onChangeText={setInput}
-                onSubmitEditing={search}
-                value={input}
-            />
+        <View style={styles.container}>
+            <StatusBar barStyle="dark-content" />
+            <View style={styles.searchContainer}>
+                <Icon name="search" size={20} color="#666" />
+                <TextInput
+                    placeholder="Explore movies"
+                    style={styles.searchInput}
+                    onChangeText={setInput}
+                    onSubmitEditing={search}
+                    value={input}
+                />
+            </View>
             <ScrollView>
-                <View style={styles.textContiner}>
+                <View style={styles.featureContainer}>
                     <FeatureToggle
                         isActive={activeFeatures.nowPlaying}
                         onPress={() => toggleFeature('nowPlaying', 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=2', 'main')}
                     >
                         Now Playing
                     </FeatureToggle>
-                    <Text style={textStyles.featureText}>|</Text>
                     <FeatureToggle
                         isActive={activeFeatures.upcoming}
                         onPress={() => toggleFeature('upcoming', 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=2', 'main')}
@@ -114,14 +134,13 @@ export default function MovieHome({ navigation }) {
                 </View>
                 <MovieByUrl url={urls.main} />
 
-                <View style={styles.textContiner}>
+                <View style={styles.featureContainer}>
                     <FeatureToggle
                         isActive={activeFeatures.popular}
                         onPress={() => toggleFeature('popular', 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', 'secondary')}
                     >
                         Popular
                     </FeatureToggle>
-                    <Text style={textStyles.featureText}>|</Text>
                     <FeatureToggle
                         isActive={activeFeatures.topRated}
                         onPress={() => toggleFeature('topRated', 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1', 'secondary')}
@@ -131,8 +150,11 @@ export default function MovieHome({ navigation }) {
                 </View>
                 <MovieByUrl url={urls.secondary} />
 
-                <View style={styles.bigContainer}>
-                    <RenderGenre data={genreMap} />
+                <Text style={styles.genreTitle}>Genres</Text>
+                <View style={styles.genreContainer}>
+                    {genreMap && genreMap.map(([genreId, name], index) => (
+                        <ScreenGenre genreid={genreId} name={name} key={index} />
+                    ))}
                 </View>
             </ScrollView>
         </View>

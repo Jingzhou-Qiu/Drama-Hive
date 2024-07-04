@@ -1,8 +1,6 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
 import MovieGenre from './Movie/MovieGenre';
 import MovieHome from './MovieHomeScreen/MovieHome';
 import GenreProvider from './MyContext/GenreContext';
@@ -16,11 +14,11 @@ import TVGenreProvider from './MyContext/TvGenreContext';
 import SingleTVPage from './TVShows/SingleTVPage'
 import UserScreen from './User/UserScreen';
 import WriteReview from './User/WriteReview';
-
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons'; 
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-const TopTab = createNativeStackNavigator();
 const TvStack = createNativeStackNavigator();
 
 const MovieStack = () => (
@@ -53,36 +51,109 @@ const AIStack = () => (
   </Stack.Navigator>
 );
 
+const CustomTabBar = ({ state, descriptors, navigation }) => {
+  return (
+    <View style={styles.tabBar}>
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const label =
+          options.tabBarLabel !== undefined
+            ? options.tabBarLabel
+            : options.title !== undefined
+            ? options.title
+            : route.name;
+
+        const isFocused = state.index === index;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        const iconName = () => {
+          switch (route.name) {
+            case 'Movie':
+              return 'film-outline';
+            case 'TV':
+              return 'tv-outline';
+            case 'Recommend':
+              return 'bulb-outline';
+            case 'user':
+              return 'person-outline';
+            default:
+              return 'square-outline';
+          }
+        };
+
+        return (
+          <TouchableOpacity
+            key={index}
+            accessibilityRole="button"
+            accessibilityState={isFocused ? { selected: true } : {}}
+            accessibilityLabel={options.tabBarAccessibilityLabel}
+            testID={options.tabBarTestID}
+            onPress={onPress}
+            style={styles.tabItem}
+          >
+            <Icon 
+              name={iconName()} 
+              size={24} 
+              color={isFocused ? '#007AFF' : '#8E8E93'} 
+            />
+            <Text style={[
+              styles.tabLabel,
+              { color: isFocused ? '#007AFF' : '#8E8E93' }
+            ]}>
+              {label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+};
+
 const Navigation = () => (
   <GenreProvider>
     <TVGenreProvider>
-      <NavigationContainer>
-        <Tab.Navigator screenOptions={{ headerShown: false }}>
-          <Tab.Screen
-            name="Movie"
-            component={MovieStack}
-            options={{ tabBarLabel: 'Movie' }}
-          />
-          <Tab.Screen
-            name="TV"
-            component={TVStack}
-            options={{ tabBarLabel: 'TV' }}
-          />
-          <Tab.Screen
-            name="Recommend"
-            component={AIStack}
-            options={{ tabBarLabel: 'Recommend' }}
-          />
-          <Tab.Screen
-            name="user"
-            component={UserScreen}
-            options={{ tabBarLabel: 'Me' }}
-          />
-        </Tab.Navigator>
-      </NavigationContainer>
+      <Tab.Navigator
+        screenOptions={{ headerShown: false }}
+        tabBar={(props) => <CustomTabBar {...props} />}
+      >
+        <Tab.Screen name="Movie" component={MovieStack} />
+        <Tab.Screen name="TV" component={TVStack} />
+        <Tab.Screen name="Recommend" component={AIStack} />
+        <Tab.Screen name="user" component={UserScreen} />
+      </Tab.Navigator>
     </TVGenreProvider>
   </GenreProvider>
-
 );
+
+const styles = StyleSheet.create({
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#F2F2F7',
+    borderTopWidth: 1,
+    borderTopColor: '#D1D1D6',
+    paddingBottom: 5,
+    paddingTop: 5,
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+  },
+  tabLabel: {
+    fontSize: 10,
+    marginTop: 4,
+  },
+});
 
 export default Navigation;

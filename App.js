@@ -1,4 +1,4 @@
-import {LoginNavigator} from "./Login/Login";
+import LoginNavigator from "./Login/LoginNavigator"
 
 
 
