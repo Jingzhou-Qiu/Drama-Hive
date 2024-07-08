@@ -7,6 +7,7 @@ import SetupAccountPage from './SetUserName';
 import Navigation from '../Navigation';
 import { UserProvider } from '../MyContext/UserContext';
 import { LoginPage } from './Login';
+import UserScreen from '../User/UserScreen';
 
 
 
@@ -21,6 +22,7 @@ export default LoginNavigator = () => {
                     <Stack.Screen name='Confirmation' component={Confirmation} />
                     <Stack.Screen name='SetupAccountPage' component={SetupAccountPage} />
                     <Stack.Screen name="Home" component={Navigation} />
+                    <Stack.Screen name="userPage" component={UserScreen} />
                 </Stack.Navigator>
             </NavigationContainer>
         </UserProvider>
