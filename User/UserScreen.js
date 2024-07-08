@@ -126,7 +126,7 @@ const UserContent = ({ number, contentType }) => {
     <FlatList
       data={data}
       renderItem={({ item }) => <ContentItem item={item} isLike={contentType === "Like"} number={number} update={fetchContent} />}
-      keyExtractor={(item, index) => index.toString()}
+      keyExtractor={(item, index) => {index.toString()}}
       contentContainerStyle={styles.contentList}
       ListEmptyComponent={<Text style={styles.emptyText}>No {contentType.toLowerCase()}s yet</Text>}
       refreshing={refreshing}

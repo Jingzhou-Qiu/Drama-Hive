@@ -37,6 +37,25 @@ const addData = async (collectionName, data) => {
   }
 };
 
+const checkDuplicate = async(collectionName, phoneNumber, id)=>{
+  try{
+    const collectionRef = collection(firestore, collectionName);
+    const q = query(collectionRef, 
+      where("phoneNumber", "==", phoneNumber),
+      where("id", "==", id)
+    );
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+      return false
+    } else {
+     return true
+    }
+  } catch (e) {
+    console.error('Error checking/adding document: ', e);
+    return null;
+  }
+}
+
 const getDataWithFilter = async (collectionName, field, operator, value) => {
   try {
     const collectionRef = collection(firestore, collectionName);
@@ -78,4 +97,4 @@ export const FirebaseProvider = ({ children }) => {
   );
 };
 
-export { FirebaseContext, addData, getDataWithFilter, app, auth, firestore, storage, firebaseConfig, deleteLike }
+export { FirebaseContext, addData, getDataWithFilter, app, auth, firestore, storage, firebaseConfig, deleteLike, checkDuplicate }

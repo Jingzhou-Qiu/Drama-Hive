@@ -10,9 +10,9 @@ import {
   ActivityIndicator,
   Dimensions
 } from 'react-native';
-import { options, screenStyle } from '../MyContext/ConstantContext';
+import { options } from '../MyContext/ConstantContext';
 import { useNavigation } from '@react-navigation/native';
-import { getDataWithFilter, addData } from '../MyContext/Firebase';
+import { getDataWithFilter, addData, checkDuplicate } from '../MyContext/Firebase';
 import { useFocusEffect } from '@react-navigation/native';
 import UserContext from '../MyContext/UserContext';
 
@@ -48,18 +48,26 @@ const ActionButtons = ({ id }) => {
   const context = useContext(UserContext);
   const phoneNumber = context.phoneNumber;
 
-  const writeReview = () => {
+  const writeReview = async () => {
     if (!phoneNumber) {
       Alert.alert("Sign In Required", "Please sign in to write a review.");
       return;
     }
+    if ( await checkDuplicate("Review", phoneNumber, id)){
+      Alert.alert("Review Exists", "You can edit your existing review if you'd like to make changes.");
+      return
+    }
     navigation.navigate("WriteReview", { id, type: "movie" });
   };
 
-  const addLike = () => {
+  const addLike = async() => {
     if (!phoneNumber) {
       Alert.alert("Sign In Required", "Please sign in to add to favorites.");
       return;
+    }
+    if ( await checkDuplicate("Like", phoneNumber, id)){
+      Alert.alert("Already added");
+      return
     }
     addData("Like", {phoneNumber, id});
     Alert.alert("Success", "Added to favorites!");
