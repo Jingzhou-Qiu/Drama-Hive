@@ -10,6 +10,7 @@ import { LoginPage } from './Login';
 import UserScreen from '../User/UserScreen';
 import SingleMoviePage from '../Movie/SingleMoviePage';
 import SingleTVPage from '../TVShows/SingleTVPage';
+import UpdateReview from '../User/UpdateReview';
 
 
 
@@ -27,6 +28,7 @@ export default LoginNavigator = () => {
                     <Stack.Screen name="userPage" component={UserScreen} />
                     <Stack.Screen name="movie" component={SingleMoviePage} />
                     <Stack.Screen name="tv" component={SingleTVPage} />
+                    <Stack.Screen name="updateReview" component={UpdateReview} />
                 </Stack.Navigator>
             </NavigationContainer>
         </UserProvider>

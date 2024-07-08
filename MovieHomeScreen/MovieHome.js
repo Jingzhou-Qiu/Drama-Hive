@@ -110,7 +110,7 @@ export default function MovieHome() {
             <View style={styles.searchContainer}>
                 <Icon name="search" size={20} color="#666" />
                 <TextInput
-                    placeholder="Explore movies"
+                    placeholder="Explore"
                     style={styles.searchInput}
                     onChangeText={setInput}
                     onSubmitEditing={search}

@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { createContext } from 'react';
-import { addDoc, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
+import { addDoc, collection, query, where, getDocs, deleteDoc, updateDoc, doc } from 'firebase/firestore';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -56,6 +56,21 @@ const checkDuplicate = async(collectionName, phoneNumber, id)=>{
   }
 }
 
+const findReview = async(collectionName, phoneNumber, id)=>{
+  try{
+    const collectionRef = collection(firestore, collectionName);
+    const q = query(collectionRef, 
+      where("phoneNumber", "==", phoneNumber),
+      where("id", "==", id)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs[0].data()
+  } catch (e) {
+    console.error('Error checking/adding document: ', e);
+    return null;
+  }
+}
+
 const getDataWithFilter = async (collectionName, field, operator, value) => {
   try {
     const collectionRef = collection(firestore, collectionName);
@@ -88,6 +103,27 @@ const deleteLike = async ( phoneNumber, id) => {
   }
 };
 
+const update = async (collectionName, phoneNumber, id, newReviewData) => {
+  try {
+    const collectionRef = collection(firestore, collectionName);
+    const q = query(collectionRef, 
+      where("phoneNumber", "==", phoneNumber),
+      where("id", "==", id)
+    );
+    const querySnapshot = await getDocs(q);
+
+    const docToUpdate = querySnapshot.docs[0];
+
+    await updateDoc(doc(firestore, collectionName, docToUpdate.id), newReviewData);
+
+    console.log('Document successfully updated');
+    return true;
+  } catch (error) {
+    console.error('Error updating document: ', error);
+    return false;
+  }
+};
+
 
 export const FirebaseProvider = ({ children }) => {
   return (
@@ -97,4 +133,4 @@ export const FirebaseProvider = ({ children }) => {
   );
 };
 
-export { FirebaseContext, addData, getDataWithFilter, app, auth, firestore, storage, firebaseConfig, deleteLike, checkDuplicate }
+export { FirebaseContext, addData, getDataWithFilter, app, auth, firestore, storage, firebaseConfig, deleteLike, checkDuplicate,findReview, update }

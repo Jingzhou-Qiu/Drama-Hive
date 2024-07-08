@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { options } from '../MyContext/ConstantContext';
 import { useNavigation } from '@react-navigation/native';
-import { getDataWithFilter, addData,checkDuplicate } from '../MyContext/Firebase';
+import { getDataWithFilter, addData,checkDuplicate, findReview } from '../MyContext/Firebase';
 import { useFocusEffect } from '@react-navigation/native';
 import UserContext from '../MyContext/UserContext';
 
@@ -48,13 +48,19 @@ const ActionButtons = ({ id }) => {
   const context = useContext(UserContext);
   const phoneNumber = context.phoneNumber;
 
-  const writeReview = () => {
+  const writeReview = async() => {
     if (!phoneNumber) {
       Alert.alert("Sign In Required", "Please sign in to write a review.");
       return;
     }
+    if ( await checkDuplicate("Review", phoneNumber, id)){
+      rs = await findReview("Review", phoneNumber, id)
+      navigation.navigate("updateReview",{id, type: "movie", rating:rs.rating, review:rs.review})
+      return
+    }
     navigation.navigate("WriteReview", { id, type: "tv" });
   };
+
 
   const addLike = async() => {
     if (!phoneNumber) {

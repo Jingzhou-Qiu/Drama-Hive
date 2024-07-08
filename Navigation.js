@@ -16,10 +16,12 @@ import UserScreen from './User/UserScreen';
 import WriteReview from './User/WriteReview';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons'; 
+import UpdateReview from './User/UpdateReview';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const TvStack = createNativeStackNavigator();
+const AIStackNa = createNativeStackNavigator();
 
 const MovieStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -28,7 +30,7 @@ const MovieStack = () => (
     <Stack.Screen name="Explore" component={SingleMoviePage} />
     <Stack.Screen name="SearchScene" component={SearchScene} />
     <Stack.Screen name="WriteReview" component={WriteReview} />
-  
+    <Stack.Screen name="updateReview" component={UpdateReview} />
   </Stack.Navigator>
 );
 
@@ -39,18 +41,20 @@ const TVStack = () => (
     <TvStack.Screen name="ExploreTV" component={SingleTVPage} />
     <TvStack.Screen name="SearchScene" component={SearchScene} />
     <TvStack.Screen name="WriteReview" component={WriteReview} />
+    <TvStack.Screen name="updateReview" component={UpdateReview} />
   </TvStack.Navigator>
 );
 
 
 const AIStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="AISearch" component={AISearch} />
-    <Stack.Screen name="SearchTitle" component={SearchTitle} />
-    <Stack.Screen name="Explore" component={SingleMoviePage} />
-    <TvStack.Screen name="ExploreTV" component={SingleTVPage} />
-    <TvStack.Screen name="WriteReview" component={WriteReview} />
-  </Stack.Navigator>
+  <AIStackNa.Navigator screenOptions={{ headerShown: false }}>
+    <AIStackNa.Screen name="AISearch" component={AISearch} />
+    <AIStackNa.Screen name="SearchTitle" component={SearchTitle} />
+    <AIStackNa.Screen name="Explore" component={SingleMoviePage} />
+    <AIStackNa.Screen name="ExploreTV" component={SingleTVPage} />
+    <AIStackNa.Screen name="WriteReview" component={WriteReview} />
+    <AIStackNa.Screen name="updateReview" component={UpdateReview} />
+  </AIStackNa.Navigator>
 );
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {

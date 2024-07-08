@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { options } from '../MyContext/ConstantContext';
 import { useNavigation } from '@react-navigation/native';
-import { getDataWithFilter, addData, checkDuplicate } from '../MyContext/Firebase';
+import { getDataWithFilter, addData, checkDuplicate, findReview } from '../MyContext/Firebase';
 import { useFocusEffect } from '@react-navigation/native';
 import UserContext from '../MyContext/UserContext';
 
@@ -54,7 +54,8 @@ const ActionButtons = ({ id }) => {
       return;
     }
     if ( await checkDuplicate("Review", phoneNumber, id)){
-      Alert.alert("Review Exists", "You can edit your existing review if you'd like to make changes.");
+      rs = await findReview("Review", phoneNumber, id)
+      navigation.navigate("updateReview",{id, type: "movie", rating:rs.rating, review:rs.review})
       return
     }
     navigation.navigate("WriteReview", { id, type: "movie" });

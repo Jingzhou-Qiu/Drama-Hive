@@ -108,7 +108,7 @@ export default function TvHome({ navigation }) {
             <View style={styles.searchContainer}>
                 <Icon name="search" size={20} color="#666" />
                 <TextInput
-                    placeholder="Explore TV shows"
+                    placeholder="Explore"
                     style={styles.searchInput}
                     onChangeText={setInput}
                     onSubmitEditing={search}
