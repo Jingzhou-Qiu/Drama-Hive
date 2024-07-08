@@ -41,14 +41,6 @@ const WriteReview = ({route}) => {
                 <TouchableOpacity onPress={submit}><Text style={styles.confirmButton}>Confirm</Text></TouchableOpacity>
             </View>
 
-            <View style={styles.segmentedControl}>
-                <TouchableOpacity style={selectedOption === 'Want to watch' ? styles.selectedSegment : styles.segment}>
-                    <Text>Want to watch</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={selectedOption === 'Watched' ? styles.selectedSegment : styles.segment}>
-                    <Text>Watched</Text>
-                </TouchableOpacity>
-            </View>
 
             <View style={styles.starRating}>
                 <Text style={styles.ratingLabel}>Tap to rate:</Text>

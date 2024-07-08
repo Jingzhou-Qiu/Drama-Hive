@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { createContext } from 'react';
-import { addDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { addDoc, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -50,6 +50,24 @@ const getDataWithFilter = async (collectionName, field, operator, value) => {
   }
 };
 
+const deleteLike = async ( phoneNumber, id) => {
+  try {
+    const q = query(
+      collection(firestore, "Like"),
+      where("phoneNumber", "==", phoneNumber),
+      where("id", "==", id)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+      deleteDoc(doc.ref);
+      console.log('Document successfully deleted!');
+    });
+  } catch (error) {
+    console.error('Error removing document: ', error);
+  }
+};
 
 
 export const FirebaseProvider = ({ children }) => {
@@ -60,4 +78,4 @@ export const FirebaseProvider = ({ children }) => {
   );
 };
 
-export { FirebaseContext, addData, getDataWithFilter, app, auth, firestore, storage, firebaseConfig }
+export { FirebaseContext, addData, getDataWithFilter, app, auth, firestore, storage, firebaseConfig, deleteLike }

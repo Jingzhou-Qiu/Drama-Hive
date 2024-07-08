@@ -82,7 +82,7 @@ export default function MovieHome() {
 
     const [urls, setUrls] = useState({
         main: 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=2',
-        secondary: 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1',
+        secondary: 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=2',
     });
 
     const search = useCallback(() => {
@@ -137,13 +137,13 @@ export default function MovieHome() {
                 <View style={styles.featureContainer}>
                     <FeatureToggle
                         isActive={activeFeatures.popular}
-                        onPress={() => toggleFeature('popular', 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', 'secondary')}
+                        onPress={() => toggleFeature('popular', 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=2', 'secondary')}
                     >
                         Popular
                     </FeatureToggle>
                     <FeatureToggle
                         isActive={activeFeatures.topRated}
-                        onPress={() => toggleFeature('topRated', 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1', 'secondary')}
+                        onPress={() => toggleFeature('topRated', 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=2', 'secondary')}
                     >
                         Top Rated
                     </FeatureToggle>

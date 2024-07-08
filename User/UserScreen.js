@@ -4,15 +4,18 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import UserContext from '../MyContext/UserContext';
 import { CommonActions } from '@react-navigation/native';
-import { getDataWithFilter } from '../MyContext/Firebase';
+import { getDataWithFilter, deleteLike } from '../MyContext/Firebase';
 import { options } from '../MyContext/ConstantContext';
+
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const baseUrl = 'https://image.tmdb.org/t/p/w200';
 
-const ContentItem = ({ item, isLike }) => {
+
+const ContentItem = ({ item, isLike, number, update }) => {
   const [details, setDetails] = useState(null);
   const [imageLoading, setImageLoading] = useState(true);
+  const navigation = useNavigation()
 
   useEffect(() => {
     fetchDetails();
@@ -28,35 +31,78 @@ const ContentItem = ({ item, isLike }) => {
       console.error('Error fetching details:', error);
     }
   };
+  const onRemoveLike = async (number, id) => {
+    await deleteLike(number, id)
+    update()
+
+  }
+  const gotonewPage = () => {
+    if (item.type == 'tv') {
+      tvShow = {
+        name: data.name,
+        genre_ids: data.genre_ids,
+        overview: data.overview,
+        poster_path: data.poster_path,
+        vote_average: data.vote_average,
+        original_language: data.original_language,
+        first_air_date: data.first_air_date,
+        id: data.id
+      }
+      navigation.navigate("tvStack", { tvShow })
+    }
+    else {
+      let movie = {
+        title: data.title,
+        genre_ids: data.genre_ids,
+        overview: data.overview,
+        poster_path: data.poster_path,
+        vote_average: data.vote_average,
+        lan: data.original_language,
+        release_date: data.release_date,
+        id: data.id
+      }
+      navigation.navigate("movieStack", { movie });
+
+    }
+
+  }
+
+
 
   if (!details) return null;
 
   return (
-    <TouchableOpacity style={styles.contentItem}>
+    <TouchableOpacity style={styles.contentItem} onClick={()=>gotonewPage()}>
       <View style={styles.posterContainer}>
         {imageLoading && <ActivityIndicator style={styles.loader} color="#3498db" />}
-        <Image 
-          source={{ uri: baseUrl + details.poster_path }} 
-          style={styles.posterImage} 
+        <Image
+          source={{ uri: baseUrl + details.poster_path }}
+          style={styles.posterImage}
           onLoadEnd={() => setImageLoading(false)}
         />
       </View>
       <View style={styles.contentInfo}>
         <Text style={styles.titleText} numberOfLines={1}>{details.title || details.name}</Text>
-        {!isLike && (
-          <View style={styles.ratingContainer}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Icon 
-                key={star} 
-                name={star <= item.rating ? "star" : "star-outline"} 
-                size={16} 
-                color="#f39c12" 
-              />
-            ))}
-          </View>
+        {isLike ? (
+          <TouchableOpacity style={styles.removeButton} onPress={() => onRemoveLike(number, item.id)}>
+            <Icon name="heart-dislike" size={24} color="#e74c3c" />
+            <Text style={styles.removeButtonText}>Remove from Favorites</Text>
+          </TouchableOpacity>
+        ) : (
+          <>
+            <View style={styles.ratingContainer}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Icon
+                  key={star}
+                  name={star <= item.rating ? "star" : "star-outline"}
+                  size={16}
+                  color="#f39c12"
+                />
+              ))}
+            </View>
+            <Text style={styles.reviewText} numberOfLines={2}>{item.review}</Text>
+          </>
         )}
-        {!isLike && <Text style={styles.reviewText} numberOfLines={2}>{item.review}</Text>}
-        {/* <Text style={styles.dateText}>{new Date(item.date).toLocaleDateString()}</Text> */}
       </View>
     </TouchableOpacity>
   );
@@ -78,7 +124,7 @@ const UserContent = ({ number, contentType }) => {
   return (
     <FlatList
       data={data}
-      renderItem={({ item }) => <ContentItem item={item} isLike={contentType === "Like"} />}
+      renderItem={({ item }) => <ContentItem item={item} isLike={contentType === "Like"} number={number} update={fetchContent} />}
       keyExtractor={(item, index) => index.toString()}
       contentContainerStyle={styles.contentList}
       ListEmptyComponent={<Text style={styles.emptyText}>No {contentType.toLowerCase()}s yet</Text>}
@@ -150,6 +196,19 @@ const UserScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  removeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8d7da',
+    padding: 8,
+    borderRadius: 5,
+    marginTop: 8,
+  },
+  removeButtonText: {
+    color: '#721c24',
+    marginLeft: 8,
+    fontSize: 14,
+  },
   container: {
     flex: 1,
     backgroundColor: '#f4f4f4',
