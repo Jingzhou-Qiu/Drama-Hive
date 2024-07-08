@@ -8,6 +8,8 @@ import Navigation from '../Navigation';
 import { UserProvider } from '../MyContext/UserContext';
 import { LoginPage } from './Login';
 import UserScreen from '../User/UserScreen';
+import SingleMoviePage from '../Movie/SingleMoviePage';
+import SingleTVPage from '../TVShows/SingleTVPage';
 
 
 
@@ -23,6 +25,8 @@ export default LoginNavigator = () => {
                     <Stack.Screen name='SetupAccountPage' component={SetupAccountPage} />
                     <Stack.Screen name="Home" component={Navigation} />
                     <Stack.Screen name="userPage" component={UserScreen} />
+                    <Stack.Screen name="movie" component={SingleMoviePage} />
+                    <Stack.Screen name="tv" component={SingleTVPage} />
                 </Stack.Navigator>
             </NavigationContainer>
         </UserProvider>

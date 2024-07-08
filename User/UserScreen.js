@@ -39,31 +39,32 @@ const ContentItem = ({ item, isLike, number, update }) => {
   const gotonewPage = () => {
     if (item.type == 'tv') {
       tvShow = {
-        name: data.name,
-        genre_ids: data.genre_ids,
-        overview: data.overview,
-        poster_path: data.poster_path,
-        vote_average: data.vote_average,
-        original_language: data.original_language,
-        first_air_date: data.first_air_date,
-        id: data.id
+        name: details.name,
+        genre_ids: details.genre_ids,
+        overview: details.overview,
+        poster_path: details.poster_path,
+        vote_average: details.vote_average,
+        original_language: details.original_language,
+        first_air_date: details.first_air_date,
+        id: details.id
       }
-      navigation.navigate("tvStack", { tvShow })
+      navigation.navigate("tv", { tvShow })
     }
     else {
       let movie = {
-        title: data.title,
-        genre_ids: data.genre_ids,
-        overview: data.overview,
-        poster_path: data.poster_path,
-        vote_average: data.vote_average,
-        lan: data.original_language,
-        release_date: data.release_date,
-        id: data.id
+        title: details.title,
+        genre_ids: details.genre_ids,
+        overview: details.overview,
+        poster_path: details.poster_path,
+        vote_average: details.vote_average,
+        lan: details.original_language,
+        release_date: details.release_date,
+        id: details.id
       }
-      navigation.navigate("movieStack", { movie });
+      navigation.navigate("movie", { movie });
 
     }
+    console.log("here")
 
   }
 
@@ -72,7 +73,7 @@ const ContentItem = ({ item, isLike, number, update }) => {
   if (!details) return null;
 
   return (
-    <TouchableOpacity style={styles.contentItem} onClick={()=>gotonewPage()}>
+    <TouchableOpacity style={styles.contentItem} onPress={()=>gotonewPage()}>
       <View style={styles.posterContainer}>
         {imageLoading && <ActivityIndicator style={styles.loader} color="#3498db" />}
         <Image

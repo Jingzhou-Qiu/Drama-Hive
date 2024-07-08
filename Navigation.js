@@ -48,6 +48,7 @@ const AIStack = () => (
     <Stack.Screen name="AISearch" component={AISearch} />
     <Stack.Screen name="SearchTitle" component={SearchTitle} />
     <Stack.Screen name="Explore" component={SingleMoviePage} />
+    <TvStack.Screen name="ExploreTV" component={SingleTVPage} />
   </Stack.Navigator>
 );
 
