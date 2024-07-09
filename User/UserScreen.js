@@ -7,7 +7,6 @@ import { CommonActions } from '@react-navigation/native';
 import { getDataWithFilter, deleteLike } from '../MyContext/Firebase';
 import { options } from '../MyContext/ConstantContext';
 
-
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const baseUrl = 'https://image.tmdb.org/t/p/w200';
 
@@ -18,8 +17,8 @@ const ContentItem = ({ item, isLike, email, update }) => {
   const navigation = useNavigation()
 
   useEffect(() => {
-    fetchDetails();
-  }, []);
+    fetchDetails()
+  }, [item.id]);
 
   const fetchDetails = async () => {
     const url = `https://api.themoviedb.org/3/${item.type}/${item.id}?language=en-US`;
@@ -31,11 +30,12 @@ const ContentItem = ({ item, isLike, email, update }) => {
       console.error('Error fetching details:', error);
     }
   };
-  const onRemoveLike = async (email, id) => {
-    await deleteLike(email, id)
-    update()
-
+  const onRemoveLike = async () => {
+    await deleteLike(email, item.id, item.type);
+    await update();
+    
   }
+  
   const gotonewPage = () => {
     if (item.type == 'tv') {
       tvShow = {
@@ -64,7 +64,6 @@ const ContentItem = ({ item, isLike, email, update }) => {
       navigation.navigate("movie", { movie });
 
     }
-    console.log("here")
 
   }
 
@@ -85,7 +84,7 @@ const ContentItem = ({ item, isLike, email, update }) => {
       <View style={styles.contentInfo}>
         <Text style={styles.titleText} numberOfLines={1}>{details.title || details.name}</Text>
         {isLike ? (
-          <TouchableOpacity style={styles.removeButton} onPress={() => onRemoveLike(email, item.id)}>
+          <TouchableOpacity style={styles.removeButton} onPress={() => onRemoveLike()}>
             <Icon name="heart-dislike" size={24} color="#e74c3c" />
             <Text style={styles.removeButtonText}>Remove from Favorites</Text>
           </TouchableOpacity>
@@ -114,8 +113,15 @@ const UserContent = ({ email, contentType }) => {
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchContent = async () => {
-    const rs = await getDataWithFilter(contentType, "email", "==", email);
-    setData(rs);
+    setRefreshing(true);
+    try {
+      const rs = await getDataWithFilter(contentType, "email", "==", email);
+      setData(rs);
+    } catch (error) {
+      console.error("Error fetching content:", error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -126,7 +132,7 @@ const UserContent = ({ email, contentType }) => {
     <FlatList
       data={data}
       renderItem={({ item }) => <ContentItem item={item} isLike={contentType === "Like"} email={email} update={fetchContent} />}
-      keyExtractor={(item, index) => {index.toString()}}
+      keyExtractor={(item, index) => {item.id.toString() + contentType}}
       contentContainerStyle={styles.contentList}
       ListEmptyComponent={<Text style={styles.emptyText}>No {contentType.toLowerCase()}s yet</Text>}
       refreshing={refreshing}
@@ -139,10 +145,23 @@ const UserScreen = () => {
   const userInfo = useContext(UserContext);
   const email = userInfo.email;
   const user = userInfo.user;
+  const setEmail = userInfo.setEmail; 
+  const setUser = userInfo.setUser; 
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Review');
 
   const login = () => {
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      })
+    );
+  };
+
+  const logout = () => {
+    setEmail(null);
+    setUser(null);
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
@@ -173,6 +192,9 @@ const UserScreen = () => {
           <View style={styles.userInfo}>
             <Text style={styles.userName}>{user}</Text>
           </View>
+          <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+            <Icon name="log-out-outline" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
         <View style={styles.tabContainer}>
           <TouchableOpacity
@@ -197,6 +219,17 @@ const UserScreen = () => {
 };
 
 const styles = StyleSheet.create({
+
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between', 
+    padding: 20,
+    backgroundColor: '#3498db',
+  },
+  logoutButton: {
+    padding: 10,
+  },
   removeButton: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -13,12 +13,14 @@ import { getDataWithFilter } from '../MyContext/Firebase';
 import UserContext from '../MyContext/UserContext';
 import { CommonActions } from '@react-navigation/native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../MyContext/Firebase'; 
+import { auth } from '../MyContext/Firebase';
+import Icon from 'react-native-vector-icons/Ionicons'; // Make sure to install this package if not already
 
 export const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigation = useNavigation();
     const myContext = useContext(UserContext);
     const contextSetEmail = myContext.setEmail;
@@ -26,12 +28,12 @@ export const LoginPage = () => {
 
     const resetToInitialRoute = () => {
         navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              { name: 'Home' }, 
-            ],
-          })
+            CommonActions.reset({
+                index: 0,
+                routes: [
+                    { name: 'Home' },
+                ],
+            })
         );
     };
 
@@ -58,11 +60,15 @@ export const LoginPage = () => {
     };
 
     const handleForgotPassword = () => {
-        navigation.navigate("ForgotPassword"); 
+        navigation.navigate("ForgotPassword");
     };
 
     const handleContinueWithoutLogin = () => {
         resetToInitialRoute();
+    };
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
     };
 
     return (
@@ -82,13 +88,22 @@ export const LoginPage = () => {
                     autoCapitalize="none"
                 />
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Password"
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                />
+                <View style={styles.passwordContainer}>
+                    <TextInput
+                        style={styles.passwordInput}
+                        placeholder="Password"
+                        secureTextEntry={!showPassword}
+                        value={password}
+                        onChangeText={rs => { setPassword(rs); setError("") }}
+                    />
+                    <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIcon}>
+                        <Icon
+                            name={showPassword ? 'eye-off' : 'eye'}
+                            size={24}
+                            color="#007AFF"
+                        />
+                    </TouchableOpacity>
+                </View>
 
                 {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -120,7 +135,22 @@ export const LoginPage = () => {
 };
 
 const styles = StyleSheet.create({
-    
+
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        borderRadius: 5,
+        marginBottom: 15,
+    },
+    passwordInput: {
+        flex: 1,
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+    },
+    eyeIcon: {
+        padding: 10,
+    },
     forgotPasswordText: {
         textAlign: 'center',
         color: '#007AFF',

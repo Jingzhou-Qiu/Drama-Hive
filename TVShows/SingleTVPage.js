@@ -71,7 +71,7 @@ const ActionButtons = ({ id }) => {
       Alert.alert("Already added");
       return
     }
-    addData("Like", {email, id});
+    addData("Like", {email, id, type: "tv"});
     Alert.alert("Success", "Added to favorites!");
   };
 

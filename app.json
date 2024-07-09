@@ -12,13 +12,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jingzhou.DramaHive"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.jingzhou.DramaHive"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -34,9 +36,11 @@
         }
       }
     },
-    "plugins": [
-    
-    ]
-    
+    "plugins": [],
+    "extra": {
+      "eas": {
+        "projectId": "ecca4666-ece7-43a4-a252-1fd9b8e3be89"
+      }
+    }
   }
 }

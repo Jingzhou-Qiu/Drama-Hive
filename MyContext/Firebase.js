@@ -84,12 +84,13 @@ const getDataWithFilter = async (collectionName, field, operator, value) => {
   }
 };
 
-const deleteLike = async (email, id) => {
+const deleteLike = async (email, id, type) => {
   try {
     const q = query(
       collection(firestore, "Like"),
       where("email", "==", email),
-      where("id", "==", id)
+      where("id", "==", id),
+      where("type", "==", type )
     );
 
     const querySnapshot = await getDocs(q);
