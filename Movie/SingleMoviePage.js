@@ -46,15 +46,15 @@ const MovieInfo = ({ title, tagline, smallTag }) => (
 const ActionButtons = ({ id }) => {
   const navigation = useNavigation();
   const context = useContext(UserContext);
-  const phoneNumber = context.phoneNumber;
+  const email = context.email;
 
   const writeReview = async () => {
-    if (!phoneNumber) {
+    if (!email) {
       Alert.alert("Sign In Required", "Please sign in to write a review.");
       return;
     }
-    if ( await checkDuplicate("Review", phoneNumber, id)){
-      rs = await findReview("Review", phoneNumber, id)
+    if ( await checkDuplicate("Review", email, id)){
+      rs = await findReview("Review", email, id)
       navigation.navigate("updateReview",{id, type: "movie", rating:rs.rating, review:rs.review})
       return
     }
@@ -62,15 +62,15 @@ const ActionButtons = ({ id }) => {
   };
 
   const addLike = async() => {
-    if (!phoneNumber) {
+    if (!email) {
       Alert.alert("Sign In Required", "Please sign in to add to favorites.");
       return;
     }
-    if ( await checkDuplicate("Like", phoneNumber, id)){
+    if ( await checkDuplicate("Like", email, id)){
       Alert.alert("Already added");
       return
     }
-    addData("Like", {phoneNumber, id});
+    addData("Like", {email, id});
     Alert.alert("Success", "Added to favorites!");
   };
 
@@ -97,11 +97,11 @@ const ReviewItem = ({ item }) => {
 
   useEffect(() => {
     const getUser = async () => {
-      const rs = await getDataWithFilter("UserInfo", "phoneNumber", "==", item.phoneNumber);
+      const rs = await getDataWithFilter("UserInfo", "email", "==", item.email);
       setUser(rs[0]?.username || 'Anonymous');
     };
     getUser();
-  }, [item.phoneNumber]);
+  }, [item.email]);
 
   return (
     <View style={styles.reviewCard}>

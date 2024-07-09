@@ -3,10 +3,10 @@ export default UserContext = createContext()
 
 export function UserProvider({children}) {
     const[user, setUser] = useState(null);
-    const[phoneNumber, setPhoneNumber] = useState(null);
+    const[email, setEmail] = useState(null);
 
     return (
-    <UserContext.Provider value={{user, phoneNumber, setUser, setPhoneNumber}}>
+    <UserContext.Provider value={{user, email, setUser, setEmail}}>
         {children}
     </UserContext.Provider>
     )

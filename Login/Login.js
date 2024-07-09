@@ -12,17 +12,17 @@ import { useNavigation } from '@react-navigation/native';
 import { getDataWithFilter } from '../MyContext/Firebase';
 import UserContext from '../MyContext/UserContext';
 import { CommonActions } from '@react-navigation/native';
-
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../MyContext/Firebase'; 
 
 export const LoginPage = () => {
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigation = useNavigation();
     const myContext = useContext(UserContext);
-    const contextChangePhoneNumber = myContext.setPhoneNumber;
+    const contextSetEmail = myContext.setEmail;
     const contextChangeUser = myContext.setUser;
-
 
     const resetToInitialRoute = () => {
         navigation.dispatch(
@@ -33,25 +33,23 @@ export const LoginPage = () => {
             ],
           })
         );
-      };
-
-    
+    };
 
     const handleLogin = async () => {
         try {
-            const rs = await getDataWithFilter("UserInfo", "phoneNumber", "==", phoneNumber);
-            if (rs.length === 0) {
-                setError("Phone number not found");
-            } else if (rs[0].password !== password) {
-                setError("Incorrect password");
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            const rs = await getDataWithFilter("UserInfo", "email", "==", user.email);
+            if (rs.length > 0) {
+                contextSetEmail(user.email);
+                contextChangeUser(rs[0].username);
+                resetToInitialRoute();
             } else {
-                contextChangePhoneNumber(phoneNumber)
-                contextChangeUser(rs[0].username)
-                resetToInitialRoute()
+                setError("User information not found");
             }
         } catch (error) {
             console.error("Login error:", error);
-            setError("An error occurred. Please try again.");
+            setError("Invalid email or password. Please try again.");
         }
     };
 
@@ -59,8 +57,12 @@ export const LoginPage = () => {
         navigation.navigate("Signup");
     };
 
+    const handleForgotPassword = () => {
+        navigation.navigate("ForgotPassword"); 
+    };
+
     const handleContinueWithoutLogin = () => {
-        resetToInitialRoute()
+        resetToInitialRoute();
     };
 
     return (
@@ -73,10 +75,11 @@ export const LoginPage = () => {
 
                 <TextInput
                     style={styles.input}
-                    placeholder="Phone Number"
-                    keyboardType="phone-pad"
-                    value={phoneNumber}
-                    onChangeText={setPhoneNumber}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
                 />
 
                 <TextInput
@@ -96,6 +99,10 @@ export const LoginPage = () => {
                     <Text style={styles.buttonText}>Log In</Text>
                 </TouchableOpacity>
 
+                <TouchableOpacity onPress={handleForgotPassword}>
+                    <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                </TouchableOpacity>
+
                 <TouchableOpacity onPress={handleSignUp}>
                     <Text style={styles.signUpText}>
                         Don't have an account? <Text style={styles.signUpLink}>Sign Up</Text>
@@ -113,6 +120,12 @@ export const LoginPage = () => {
 };
 
 const styles = StyleSheet.create({
+    
+    forgotPasswordText: {
+        textAlign: 'center',
+        color: '#007AFF',
+        marginBottom: 15,
+    },
     errorText: {
         color: 'red',
         textAlign: 'center',

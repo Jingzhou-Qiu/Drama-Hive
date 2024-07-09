@@ -26,10 +26,10 @@ const WriteReview = ({route}) => {
     const handleStarPress = (selectedRating) => {
         setRating(selectedRating);
     };
-    const phoneNumber = context.phoneNumber
+    const email = context.email
 
     const submit = () => {
-        add("Review", { phoneNumber, rating, review, date: new Date(), id: route.params.id, type: route.params.type })
+        add("Review", { email, rating, review, date: new Date(), id: route.params.id, type: route.params.type })
         navigation.goBack()
 
     }

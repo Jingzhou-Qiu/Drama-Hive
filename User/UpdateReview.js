@@ -26,7 +26,8 @@ const UpdateReview = ({route}) => {
     const handleStarPress = (selectedRating) => {
         setRating(selectedRating);
     };
-    const phoneNumber = context.phoneNumber
+    const user = context.user
+    const email = context.email
 
     const submit = () => {
         const newReviewData = {
@@ -34,7 +35,7 @@ const UpdateReview = ({route}) => {
             review: review,
             date: new Date()
           };
-        update("Review", phoneNumber, route.params.id, newReviewData)
+        update("Review", email, route.params.id, newReviewData)
         navigation.goBack()
     }
 

@@ -12,7 +12,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const baseUrl = 'https://image.tmdb.org/t/p/w200';
 
 
-const ContentItem = ({ item, isLike, number, update }) => {
+const ContentItem = ({ item, isLike, email, update }) => {
   const [details, setDetails] = useState(null);
   const [imageLoading, setImageLoading] = useState(true);
   const navigation = useNavigation()
@@ -31,8 +31,8 @@ const ContentItem = ({ item, isLike, number, update }) => {
       console.error('Error fetching details:', error);
     }
   };
-  const onRemoveLike = async (number, id) => {
-    await deleteLike(number, id)
+  const onRemoveLike = async (email, id) => {
+    await deleteLike(email, id)
     update()
 
   }
@@ -85,7 +85,7 @@ const ContentItem = ({ item, isLike, number, update }) => {
       <View style={styles.contentInfo}>
         <Text style={styles.titleText} numberOfLines={1}>{details.title || details.name}</Text>
         {isLike ? (
-          <TouchableOpacity style={styles.removeButton} onPress={() => onRemoveLike(number, item.id)}>
+          <TouchableOpacity style={styles.removeButton} onPress={() => onRemoveLike(email, item.id)}>
             <Icon name="heart-dislike" size={24} color="#e74c3c" />
             <Text style={styles.removeButtonText}>Remove from Favorites</Text>
           </TouchableOpacity>
@@ -109,12 +109,12 @@ const ContentItem = ({ item, isLike, number, update }) => {
   );
 };
 
-const UserContent = ({ number, contentType }) => {
+const UserContent = ({ email, contentType }) => {
   const [data, setData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchContent = async () => {
-    const rs = await getDataWithFilter(contentType, "phoneNumber", "==", number);
+    const rs = await getDataWithFilter(contentType, "email", "==", email);
     setData(rs);
   };
 
@@ -125,7 +125,7 @@ const UserContent = ({ number, contentType }) => {
   return (
     <FlatList
       data={data}
-      renderItem={({ item }) => <ContentItem item={item} isLike={contentType === "Like"} number={number} update={fetchContent} />}
+      renderItem={({ item }) => <ContentItem item={item} isLike={contentType === "Like"} email={email} update={fetchContent} />}
       keyExtractor={(item, index) => {index.toString()}}
       contentContainerStyle={styles.contentList}
       ListEmptyComponent={<Text style={styles.emptyText}>No {contentType.toLowerCase()}s yet</Text>}
@@ -137,7 +137,7 @@ const UserContent = ({ number, contentType }) => {
 
 const UserScreen = () => {
   const userInfo = useContext(UserContext);
-  const phoneNumber = userInfo.phoneNumber;
+  const email = userInfo.email;
   const user = userInfo.user;
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Review');
@@ -151,7 +151,7 @@ const UserScreen = () => {
     );
   };
 
-  if (phoneNumber == null) {
+  if (email == null) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loginContainer}>
@@ -189,7 +189,7 @@ const UserScreen = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.contentContainer}>
-          <UserContent number={phoneNumber} contentType={activeTab} />
+          <UserContent email={email} contentType={activeTab} />
         </View>
       </SafeAreaView>
     );

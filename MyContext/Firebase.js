@@ -37,11 +37,11 @@ const addData = async (collectionName, data) => {
   }
 };
 
-const checkDuplicate = async(collectionName, phoneNumber, id)=>{
+const checkDuplicate = async(collectionName, email, id)=>{
   try{
     const collectionRef = collection(firestore, collectionName);
     const q = query(collectionRef, 
-      where("phoneNumber", "==", phoneNumber),
+      where("email", "==", email),
       where("id", "==", id)
     );
     const querySnapshot = await getDocs(q);
@@ -56,11 +56,11 @@ const checkDuplicate = async(collectionName, phoneNumber, id)=>{
   }
 }
 
-const findReview = async(collectionName, phoneNumber, id)=>{
+const findReview = async(collectionName, email, id)=>{
   try{
     const collectionRef = collection(firestore, collectionName);
     const q = query(collectionRef, 
-      where("phoneNumber", "==", phoneNumber),
+      where("email", "==", email),
       where("id", "==", id)
     );
     const querySnapshot = await getDocs(q);
@@ -84,11 +84,11 @@ const getDataWithFilter = async (collectionName, field, operator, value) => {
   }
 };
 
-const deleteLike = async ( phoneNumber, id) => {
+const deleteLike = async (email, id) => {
   try {
     const q = query(
       collection(firestore, "Like"),
-      where("phoneNumber", "==", phoneNumber),
+      where("email", "==", email),
       where("id", "==", id)
     );
 
@@ -103,11 +103,11 @@ const deleteLike = async ( phoneNumber, id) => {
   }
 };
 
-const update = async (collectionName, phoneNumber, id, newReviewData) => {
+const update = async (collectionName, email, id, newReviewData) => {
   try {
     const collectionRef = collection(firestore, collectionName);
     const q = query(collectionRef, 
-      where("phoneNumber", "==", phoneNumber),
+      where("email", "==", email),
       where("id", "==", id)
     );
     const querySnapshot = await getDocs(q);

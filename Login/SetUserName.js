@@ -10,24 +10,19 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; 
 import { addData } from '../MyContext/Firebase';
 import { useNavigation } from '@react-navigation/native';
 import UserContext from '../MyContext/UserContext';
 import { CommonActions } from '@react-navigation/native';
 
-
 const SetupAccountPage = ({ route }) => {
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const phoneNumber = route.params.phoneNumber;
   const navigation = useNavigation();
   const myContext = useContext(UserContext);
-  const contextChangePhoneNumber = myContext.setPhoneNumber;
+  const { email } = route.params;
+  const contextSetEmail = myContext.setEmail;
   const contextChangeUser = myContext.setUser;
 
   const resetToInitialRoute = () => {
@@ -41,37 +36,23 @@ const SetupAccountPage = ({ route }) => {
     );
   };
 
-  const validatePassword = (pass) => {
-
-    if (pass.length < 8) {
-      return false;
-    }
-    const hasLetter = /[a-zA-Z]/.test(pass);
-    const hasNumber = /\d/.test(pass);
-    
-    return hasLetter && hasNumber;
-  };
   const handleSetupAccount = async () => {
     setError('');
-    if (password !== confirmPassword) {
-      setError("Passwords don't match");
-      return;
-    }
-    if (!validatePassword(password)) {
-      setError("Password must be at least 8 characters long and contain both letters and numbers");
-      return;
-    }
     setIsLoading(true);
-    try {
-      await addData("UserInfo", {username, password, phoneNumber});
+    if (!username.trim()) {
+      setError('Username cannot be empty');
       setIsLoading(false);
-      contextChangePhoneNumber(phoneNumber)
-      contextChangeUser(username)
-      resetToInitialRoute()
-
+      return;
+    }
+    try {
+      await addData("UserInfo", { username, email });
+      setIsLoading(false);
+      contextSetEmail(email);
+      contextChangeUser(username);
+      resetToInitialRoute();
     } catch (err) {
       setIsLoading(false);
-      console.log(err)
+      console.log(err);
       setError("Failed to create account. Please try again.");
     }
   };
@@ -83,7 +64,7 @@ const SetupAccountPage = ({ route }) => {
     >
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.formContainer}>
-          <Text style={styles.title}>Set Up Your Account</Text>
+          <Text style={styles.title}>Set Up Your Username</Text>
           
           <TextInput
             style={styles.input}
@@ -91,34 +72,6 @@ const SetupAccountPage = ({ route }) => {
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
-          />
-          
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Password"
-              secureTextEntry={!showPassword}
-              value={password}
-              onChangeText={setPassword}
-            />
-            <TouchableOpacity
-              style={styles.eyeIcon}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Ionicons
-                name={showPassword ? 'eye-off' : 'eye'}
-                size={24}
-                color="#007AFF"
-              />
-            </TouchableOpacity>
-          </View>
-          
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm Password"
-            secureTextEntry={!showPassword}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
           />
           
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
