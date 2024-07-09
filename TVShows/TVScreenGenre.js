@@ -16,7 +16,7 @@ export default function TVScreenGenre({ genreid, name }) {
 
     async function getTVShow(genre_ids) {
         try {
-            let url = `https://api.themoviedb.org/3/discover/tv?include_adult=false&include_null_first_air_dates=false&language=en-US&sort_by=popularity.desc&with_genres=${genre_ids}`;
+            let url = `https://api.themoviedb.org/3/discover/tv?include_adult=false&include_null_first_air_dates=false&page=4&sort_by=popularity.desc&with_genres=${genre_ids}`;
             let response = await fetch(url, options);
             let data = await response.json();
             setData('https://image.tmdb.org/t/p/w780' + data.results[0].backdrop_path);
